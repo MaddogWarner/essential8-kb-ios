@@ -1,0 +1,583 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		6D0532A62FBD7ACF002FBFB1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6D05328E2FBD7ACD002FBFB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D0532952FBD7ACD002FBFB1;
+			remoteInfo = "Essential 8 Knowledge Base";
+		};
+		6D0532B02FBD7ACF002FBFB1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6D05328E2FBD7ACD002FBFB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D0532952FBD7ACD002FBFB1;
+			remoteInfo = "Essential 8 Knowledge Base";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6D0532962FBD7ACD002FBFB1 /* Essential 8 Knowledge Base.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Essential 8 Knowledge Base.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D0532A52FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Essential 8 Knowledge BaseTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D0532AF2FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Essential 8 Knowledge BaseUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		6D0532982FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Essential 8 Knowledge Base";
+			sourceTree = "<group>";
+		};
+		6D0532A82FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Essential 8 Knowledge BaseTests";
+			sourceTree = "<group>";
+		};
+		6D0532B22FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Essential 8 Knowledge BaseUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6D0532932FBD7ACD002FBFB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532A22FBD7ACF002FBFB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532AC2FBD7ACF002FBFB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6D05328D2FBD7ACD002FBFB1 = {
+			isa = PBXGroup;
+			children = (
+				6D0532982FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */,
+				6D0532A82FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests */,
+				6D0532B22FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests */,
+				6D0532972FBD7ACD002FBFB1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6D0532972FBD7ACD002FBFB1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6D0532962FBD7ACD002FBFB1 /* Essential 8 Knowledge Base.app */,
+				6D0532A52FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests.xctest */,
+				6D0532AF2FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6D0532952FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D0532B92FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge Base" */;
+			buildPhases = (
+				6D0532922FBD7ACD002FBFB1 /* Sources */,
+				6D0532932FBD7ACD002FBFB1 /* Frameworks */,
+				6D0532942FBD7ACD002FBFB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6D0532982FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */,
+			);
+			name = "Essential 8 Knowledge Base";
+			packageProductDependencies = (
+			);
+			productName = "Essential 8 Knowledge Base";
+			productReference = 6D0532962FBD7ACD002FBFB1 /* Essential 8 Knowledge Base.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6D0532A42FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D0532BC2FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge BaseTests" */;
+			buildPhases = (
+				6D0532A12FBD7ACF002FBFB1 /* Sources */,
+				6D0532A22FBD7ACF002FBFB1 /* Frameworks */,
+				6D0532A32FBD7ACF002FBFB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6D0532A72FBD7ACF002FBFB1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6D0532A82FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests */,
+			);
+			name = "Essential 8 Knowledge BaseTests";
+			packageProductDependencies = (
+			);
+			productName = "Essential 8 Knowledge BaseTests";
+			productReference = 6D0532A52FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		6D0532AE2FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D0532BF2FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge BaseUITests" */;
+			buildPhases = (
+				6D0532AB2FBD7ACF002FBFB1 /* Sources */,
+				6D0532AC2FBD7ACF002FBFB1 /* Frameworks */,
+				6D0532AD2FBD7ACF002FBFB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6D0532B12FBD7ACF002FBFB1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6D0532B22FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests */,
+			);
+			name = "Essential 8 Knowledge BaseUITests";
+			packageProductDependencies = (
+			);
+			productName = "Essential 8 Knowledge BaseUITests";
+			productReference = 6D0532AF2FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6D05328E2FBD7ACD002FBFB1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					6D0532952FBD7ACD002FBFB1 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					6D0532A42FBD7ACF002FBFB1 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 6D0532952FBD7ACD002FBFB1;
+					};
+					6D0532AE2FBD7ACF002FBFB1 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 6D0532952FBD7ACD002FBFB1;
+					};
+				};
+			};
+			buildConfigurationList = 6D0532912FBD7ACD002FBFB1 /* Build configuration list for PBXProject "Essential 8 Knowledge Base" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6D05328D2FBD7ACD002FBFB1;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6D0532972FBD7ACD002FBFB1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6D0532952FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */,
+				6D0532A42FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseTests */,
+				6D0532AE2FBD7ACF002FBFB1 /* Essential 8 Knowledge BaseUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6D0532942FBD7ACD002FBFB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532A32FBD7ACF002FBFB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532AD2FBD7ACF002FBFB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6D0532922FBD7ACD002FBFB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532A12FBD7ACF002FBFB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D0532AB2FBD7ACF002FBFB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6D0532A72FBD7ACF002FBFB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D0532952FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */;
+			targetProxy = 6D0532A62FBD7ACF002FBFB1 /* PBXContainerItemProxy */;
+		};
+		6D0532B12FBD7ACF002FBFB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D0532952FBD7ACD002FBFB1 /* Essential 8 Knowledge Base */;
+			targetProxy = 6D0532B02FBD7ACF002FBFB1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6D0532B72FBD7ACF002FBFB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6D0532B82FBD7ACF002FBFB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6D0532BA2FBD7ACF002FBFB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-Base";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6D0532BB2FBD7ACF002FBFB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-Base";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6D0532BD2FBD7ACF002FBFB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-BaseTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Essential 8 Knowledge Base.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Essential 8 Knowledge Base";
+			};
+			name = Debug;
+		};
+		6D0532BE2FBD7ACF002FBFB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-BaseTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Essential 8 Knowledge Base.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Essential 8 Knowledge Base";
+			};
+			name = Release;
+		};
+		6D0532C02FBD7ACF002FBFB1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-BaseUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Essential 8 Knowledge Base";
+			};
+			name = Debug;
+		};
+		6D0532C12FBD7ACF002FBFB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3X23GMR97;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maddogwarner.Essential-8-Knowledge-BaseUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Essential 8 Knowledge Base";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6D0532912FBD7ACD002FBFB1 /* Build configuration list for PBXProject "Essential 8 Knowledge Base" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D0532B72FBD7ACF002FBFB1 /* Debug */,
+				6D0532B82FBD7ACF002FBFB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D0532B92FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge Base" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D0532BA2FBD7ACF002FBFB1 /* Debug */,
+				6D0532BB2FBD7ACF002FBFB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D0532BC2FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge BaseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D0532BD2FBD7ACF002FBFB1 /* Debug */,
+				6D0532BE2FBD7ACF002FBFB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D0532BF2FBD7ACF002FBFB1 /* Build configuration list for PBXNativeTarget "Essential 8 Knowledge BaseUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D0532C02FBD7ACF002FBFB1 /* Debug */,
+				6D0532C12FBD7ACF002FBFB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6D05328E2FBD7ACD002FBFB1 /* Project object */;
+}
