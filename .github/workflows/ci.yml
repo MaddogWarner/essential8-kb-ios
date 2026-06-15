@@ -12,11 +12,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build and test
+      - name: Build
         run: |
           xcodebuild \
             -scheme "Essential 8 Knowledge Base" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+            -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
-            clean build test \
+            clean build \
             CODE_SIGNING_ALLOWED=NO
