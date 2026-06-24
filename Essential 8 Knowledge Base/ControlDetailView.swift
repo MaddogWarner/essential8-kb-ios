@@ -8,6 +8,16 @@ import SwiftUI
 struct ControlDetailView: View {
     let control: EssentialControl
 
+    @EnvironmentObject private var progressStore: ProgressStore
+
+    private var allSteps: [ImplementationStep] {
+        MaturityLevel.allCases.flatMap { control.content(for: $0).steps }
+    }
+
+    private var completedCount: Int {
+        progressStore.completedCount(for: allSteps)
+    }
+
     var body: some View {
         List {
             Section {
@@ -46,6 +56,28 @@ struct ControlDetailView: View {
             }
 
             Section {
+                VStack(alignment: .leading, spacing: 6) {
+                    ProgressView(value: Double(completedCount), total: Double(allSteps.count))
+                        .tint(completedCount == allSteps.count ? .green : .accentColor)
+                    HStack {
+                        Text("\(completedCount) of \(allSteps.count) steps complete")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        if completedCount == allSteps.count {
+                            Label("All steps complete", systemImage: "checkmark.circle.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.green)
+                                .labelStyle(.iconOnly)
+                        }
+                    }
+                }
+                .padding(.vertical, 4)
+            } header: {
+                Text("Implementation Progress")
+            }
+
+            Section {
                 maturityButton(level: .ml1, content: control.ml1)
                 maturityButton(level: .ml2, content: control.ml2)
                 maturityButton(level: .ml3, content: control.ml3)
@@ -70,6 +102,9 @@ struct ControlDetailView: View {
 
     @ViewBuilder
     private func maturityButton(level: MaturityLevel, content: MaturityLevelContent) -> some View {
+        let doneCount = progressStore.completedCount(for: content.steps)
+        let totalCount = content.steps.count
+
         NavigationLink(value: MaturityLevelDestination(level: level, content: content)) {
             HStack(alignment: .top, spacing: 12) {
                 Text(level.shortName)
@@ -84,6 +119,10 @@ struct ControlDetailView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(3)
                 }
+                Spacer()
+                Text("\(doneCount)/\(totalCount)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             .padding(.vertical, 4)
         }
@@ -99,4 +138,5 @@ struct MaturityLevelDestination: Hashable {
     NavigationStack {
         ControlDetailView(control: EssentialControlsData.applicationControl)
     }
+    .environmentObject(ProgressStore.shared)
 }

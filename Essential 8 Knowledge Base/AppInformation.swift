@@ -31,6 +31,11 @@ enum AppInformation {
 
     static let privacyPolicy = "Essential 8 Knowledge Base does not collect, record, store, transmit, or share any user data. The app does not require account access and does not request access to the microphone, camera, location services, contacts, photos, or other device sensors."
 
+    static let privacyPolicyLink = ReferenceLink(
+        title: "App privacy policy",
+        url: referenceURL("https://maddogwarner.com/privacy/essential-8-knowledge-base/")
+    )
+
     static let referenceLinks: [ReferenceLink] = [
         ReferenceLink(
             title: "ASD Essential Eight maturity model",

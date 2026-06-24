@@ -11,6 +11,7 @@ struct MaturityLevelView: View {
     let level: MaturityLevel
     let content: MaturityLevelContent
 
+    @EnvironmentObject private var progressStore: ProgressStore
     @AppStorage("microsoft365LicenseMode") private var selectedLicenseRawValue = Microsoft365LicenseMode.none.rawValue
 
     private var selectedLicenseMode: Microsoft365LicenseMode {
@@ -21,20 +22,42 @@ struct MaturityLevelView: View {
         Microsoft365AdditionalControlsData.protections(for: controlID, level: level, licenseMode: selectedLicenseMode)
     }
 
+    private var completedCount: Int {
+        progressStore.completedCount(for: content.steps)
+    }
+
     var body: some View {
         List {
             Section {
                 Text(content.summary)
                     .font(.body)
             } header: {
-                Text("What \(level.shortName) requires")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("What \(level.shortName) requires")
+                    Text("\(completedCount) of \(content.steps.count) steps complete")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
+                }
             }
 
             ForEach(Array(content.steps.enumerated()), id: \.element.id) { index, step in
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(step.title)
-                            .font(.headline)
+                        HStack(alignment: .top, spacing: 10) {
+                            Button {
+                                progressStore.toggle(step.id)
+                            } label: {
+                                Image(systemName: progressStore.isCompleted(step.id) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(progressStore.isCompleted(step.id) ? .green : .secondary)
+                                    .font(.title3)
+                                    .accessibilityLabel(progressStore.isCompleted(step.id) ? "Mark \(step.title) not implemented" : "Mark \(step.title) implemented")
+                            }
+                            .buttonStyle(.plain)
+
+                            Text(step.title)
+                                .font(.headline)
+                        }
                         Text(step.description)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -121,4 +144,5 @@ struct MaturityLevelView: View {
             content: EssentialControlsData.applicationControl.ml1
         )
     }
+    .environmentObject(ProgressStore.shared)
 }

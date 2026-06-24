@@ -42,7 +42,7 @@ struct MaturityLevelContent: Hashable {
 }
 
 struct ImplementationStep: Identifiable, Hashable {
-    let id = UUID()
+    let id: String
     let title: String
     let description: String
     /// Specific technical artefacts: GPO paths, registry keys, PowerShell, CMD.

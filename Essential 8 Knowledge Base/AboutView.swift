@@ -54,6 +54,22 @@ struct AboutView: View {
                 Section {
                     Text(AppInformation.privacyPolicy)
                         .font(.body)
+
+                    Link(destination: AppInformation.privacyPolicyLink.url) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(AppInformation.privacyPolicyLink.title)
+                                    .font(.body)
+                                Text(AppInformation.privacyPolicyLink.hostDisplayName)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "hand.raised")
+                                .foregroundStyle(.tint)
+                        }
+                    }
+                    .accessibilityLabel("\(AppInformation.privacyPolicyLink.title), \(AppInformation.privacyPolicyLink.hostDisplayName)")
                 } header: {
                     Text(AppInformation.privacyTitle)
                 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1 — 2026-06-24
+
+- Bumped marketing version to 1.1 and build number to 2 for the next App Store release.
+- Added persistent implementation-progress tracking: tap-to-tick steps on each maturity-level page, per-level counters on the control detail page, and a green completion badge on the home screen when every step for a control is marked done. Progress survives app relaunches via `UserDefaults`.
+- Replaced runtime UUIDs on implementation steps with stable `controlID-level-index` identifiers so progress state can persist across launches and builds.
+- Added a Windows Audit Policy reference page accessible from the home screen, covering ASD-recommended minimum Windows Security Audit Policy settings for detection and response.
+- Added an app-specific privacy policy link to the About & Privacy screen for App Store review and user access, while keeping the existing short in-app privacy summary.
+
 ## 0.2.1 — 2026-05-21
 
 - Changed the bundle identifier from `au.com.maddogwarner.Essential-8-Knowledge-Base*` to `com.maddogwarner.Essential-8-Knowledge-Base*` across the app, unit test, and UI test targets.

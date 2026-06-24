@@ -7,6 +7,7 @@ import SwiftUI
 
 struct HomeView: View {
     private let controls = EssentialControlsData.all
+    @EnvironmentObject private var progressStore: ProgressStore
     @State private var isShowingAbout = false
 
     var body: some View {
@@ -14,26 +15,47 @@ struct HomeView: View {
             Section {
                 ForEach(controls) { control in
                     NavigationLink(value: control) {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(control.name)
-                                    .font(.headline)
-                                Text("Mitigation \(control.id)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        HStack {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(control.name)
+                                        .font(.headline)
+                                    Text("Mitigation \(control.id)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: control.iconSystemName)
+                                    .foregroundStyle(.tint)
+                                    .imageScale(.large)
                             }
-                        } icon: {
-                            Image(systemName: control.iconSystemName)
-                                .foregroundStyle(.tint)
-                                .imageScale(.large)
+                            .padding(.vertical, 4)
+                            Spacer()
+                            if progressStore.isControlComplete(control) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                    .imageScale(.medium)
+                            }
                         }
-                        .padding(.vertical, 4)
                     }
                 }
             } header: {
                 Text("ASD Essential Eight")
             } footer: {
                 Text("Content is scoped to controls achievable using built-in Windows OS tooling. Verify against the current ASD Essential Eight Maturity Model before implementation.")
+                    .font(.footnote)
+            }
+
+            Section {
+                NavigationLink {
+                    WindowsAuditPolicyView()
+                } label: {
+                    Label("Windows Audit Policy", systemImage: "doc.text.magnifyingglass")
+                }
+            } header: {
+                Text("Event Logging")
+            } footer: {
+                Text("ASD recommended minimum Windows Security Audit Policy settings for detection and response.")
                     .font(.footnote)
             }
 
@@ -76,4 +98,5 @@ struct HomeView: View {
     NavigationStack {
         HomeView()
     }
+    .environmentObject(ProgressStore.shared)
 }

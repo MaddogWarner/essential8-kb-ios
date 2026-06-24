@@ -12,6 +12,7 @@ struct Essential_8_Knowledge_BaseApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(ProgressStore.shared)
         }
     }
 }
