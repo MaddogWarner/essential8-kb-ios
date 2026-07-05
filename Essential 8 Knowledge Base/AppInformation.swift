@@ -36,6 +36,8 @@ enum AppInformation {
         url: referenceURL("https://maddogwarner.com/privacy/essential-8-knowledge-base/")
     )
 
+    static let reviewURL = referenceURL("https://apps.apple.com/app/id6775351019?action=write-review")
+
     static let referenceLinks: [ReferenceLink] = [
         ReferenceLink(
             title: "ASD Essential Eight maturity model",

@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.4 — 2026-07-05
+
+- Added an organisation-wide Target Maturity Level picker on the home dashboard so compliance metrics can be measured against ML1, ML2 or ML3 using cumulative maturity-level scope.
+- Updated dashboard rings, stacked bar chart data, control-detail progress, and home-screen completion badges to use the selected target maturity level.
+- Added "Beyond target" badges for maturity levels above the selected target while keeping those levels browsable as reference content.
+- Added verified ISM control mappings from ASD's October 2024 *Essential Eight maturity model and ISM mapping*, with maturity-level display support and Global Search matching for ISM IDs.
+- Updated the startup splash screen for Version 1.4 and bumped marketing version/build numbers to 1.4/5.
+- Added unit and UI tests for target-scoped maturity maths, reset behaviour, search matching, picker persistence, and beyond-target badges.
+
+## 1.3 — 2026-07-02
+
+- Added a "Reference Only Mode" toggle in the About page which allows users to hide or display the home screen compliance dashboard.
+- Updated the startup Welcome Splash screen to include version 1.3 features and showcase the new Reference Only Mode.
+- Integrated Reference Only Mode persistence into the local app data reset flow.
+- Added comprehensive unit and UI tests for Reference Only Mode status rendering, toggle state persistence, and reset behaviour.
+
+## 1.2 — 2026-07-02
+
+- Added a visual Compliance Dashboard on the home screen featuring an animated circular gradient progress ring and a horizontal stacked bar chart showing the breakdown of steps (Implemented, Not Applicable, Pending) across all 8 Essential Eight controls.
+- Expanded implementation-step tracking to support multi-state statuses: Implemented, Not Applicable (with optional custom reasons), and Not Implemented.
+- Added a Global Search tool enabling administrators to search across all implementation steps, matching titles, descriptions, and technical GPO/registry paths or commands.
+- Updated control detail and maturity level views to display compliance percentages and not-applicable step counts.
+- Added a startup Welcome Splash screen presenting the app overview and recently added version 1.2 features, including an "Always show on startup" tick box toggle.
+- Added a "Rate the App" review link in the About & Privacy sheet directing users to write reviews on the App Store.
+- Added a "Reset App Data" action in the About & Privacy sheet with a confirmation alert to restore mitigation tracking, custom reasons, M365 licensing settings, and startup screen preferences back to defaults.
+- Added automated unit and UI tests validating multi-state compliance calculations, status persistence, the data reset flow, and the splash onboarding screen flows.
+
 ## 1.1 — 2026-06-24
 
 - Bumped marketing version to 1.1 and build number to 2 for the next App Store release.

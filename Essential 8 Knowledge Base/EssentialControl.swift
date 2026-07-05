@@ -22,6 +22,11 @@ struct EssentialControl: Identifiable, Hashable {
         case .ml3: return ml3
         }
     }
+
+    /// All steps in scope when targeting `level` (cumulative).
+    func steps(upTo level: MaturityLevel) -> [ImplementationStep] {
+        level.cumulativeLevels.flatMap { content(for: $0).steps }
+    }
 }
 
 enum MaturityLevel: Int, CaseIterable, Hashable, Identifiable {
@@ -32,6 +37,11 @@ enum MaturityLevel: Int, CaseIterable, Hashable, Identifiable {
     var id: Int { rawValue }
     var shortName: String { "ML\(rawValue)" }
     var displayName: String { "Maturity Level \(rawValue)" }
+
+    /// Levels included when this level is the target (cumulative: ML1...self).
+    var cumulativeLevels: [MaturityLevel] {
+        MaturityLevel.allCases.filter { $0.rawValue <= rawValue }
+    }
 }
 
 struct MaturityLevelContent: Hashable {
@@ -45,6 +55,24 @@ struct ImplementationStep: Identifiable, Hashable {
     let id: String
     let title: String
     let description: String
+    /// ISM control identifiers this step maps to (e.g. "ISM-1490"), from the
+    /// ASD Essential Eight maturity model and ISM mapping (October 2024). Empty
+    /// when no confident mapping exists.
+    let ismControls: [String]
     /// Specific technical artefacts: GPO paths, registry keys, PowerShell, CMD.
     let technicalDetails: [String]
+
+    init(
+        id: String,
+        title: String,
+        description: String,
+        ismControls: [String] = [],
+        technicalDetails: [String] = []
+    ) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.ismControls = ismControls
+        self.technicalDetails = technicalDetails
+    }
 }
