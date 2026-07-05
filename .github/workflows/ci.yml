@@ -9,7 +9,9 @@ on:
 jobs:
   build:
     name: build
-    runs-on: macos-latest
+    # Pinned: macos-latest currently resolves to either macos-15 or macos-26 mid-migration,
+    # and the macos-15 Xcode cannot compile the Swift Charts usage in WindowsAuditPolicyView.
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v7
       - name: Build
