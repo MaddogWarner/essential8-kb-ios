@@ -18,6 +18,14 @@ struct ControlDetailView: View {
         progressStore.completedCount(for: allSteps)
     }
 
+    private var notApplicableCount: Int {
+        progressStore.notApplicableCount(for: allSteps)
+    }
+
+    private var compliancePercentage: Double {
+        progressStore.compliancePercentage(for: allSteps)
+    }
+
     var body: some View {
         List {
             Section {
@@ -57,19 +65,23 @@ struct ControlDetailView: View {
 
             Section {
                 VStack(alignment: .leading, spacing: 6) {
-                    ProgressView(value: Double(completedCount), total: Double(allSteps.count))
-                        .tint(completedCount == allSteps.count ? .green : .accentColor)
+                    ProgressView(value: compliancePercentage, total: 100.0)
+                        .tint(compliancePercentage == 100.0 ? .green : .accentColor)
                     HStack {
-                        Text("\(completedCount) of \(allSteps.count) steps complete")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        if completedCount == allSteps.count {
-                            Label("All steps complete", systemImage: "checkmark.circle.fill")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.green)
-                                .labelStyle(.iconOnly)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(completedCount) of \(allSteps.count) steps complete")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            if notApplicableCount > 0 {
+                                Text("\(notApplicableCount) step(s) not applicable")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                         }
+                        Spacer()
+                        Text(String(format: "%.0f%% Compliant", compliancePercentage))
+                            .font(.subheadline.bold())
+                            .foregroundStyle(compliancePercentage == 100.0 ? .green : .primary)
                     }
                 }
                 .padding(.vertical, 4)
@@ -103,7 +115,9 @@ struct ControlDetailView: View {
     @ViewBuilder
     private func maturityButton(level: MaturityLevel, content: MaturityLevelContent) -> some View {
         let doneCount = progressStore.completedCount(for: content.steps)
+        let naCount = progressStore.notApplicableCount(for: content.steps)
         let totalCount = content.steps.count
+        let progressText = naCount > 0 ? "\(doneCount)/\(totalCount) (\(naCount) N/A)" : "\(doneCount)/\(totalCount)"
 
         NavigationLink(value: MaturityLevelDestination(level: level, content: content)) {
             HStack(alignment: .top, spacing: 12) {
@@ -120,7 +134,7 @@ struct ControlDetailView: View {
                         .lineLimit(3)
                 }
                 Spacer()
-                Text("\(doneCount)/\(totalCount)")
+                Text(progressText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

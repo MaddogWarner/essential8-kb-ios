@@ -22,8 +22,25 @@ struct MaturityLevelView: View {
         Microsoft365AdditionalControlsData.protections(for: controlID, level: level, licenseMode: selectedLicenseMode)
     }
 
+    @State private var activeStepIDForNA: String? = nil
+    @State private var showingNAReasonAlert = false
+    @State private var naReasonText = ""
+
     private var completedCount: Int {
         progressStore.completedCount(for: content.steps)
+    }
+
+    private var notApplicableCount: Int {
+        progressStore.notApplicableCount(for: content.steps)
+    }
+
+    private var headerProgressText: String {
+        let naCount = notApplicableCount
+        if naCount > 0 {
+            return "\(completedCount) of \(content.steps.count) steps complete (\(naCount) not applicable)"
+        } else {
+            return "\(completedCount) of \(content.steps.count) steps complete"
+        }
     }
 
     var body: some View {
@@ -34,7 +51,7 @@ struct MaturityLevelView: View {
             } header: {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("What \(level.shortName) requires")
-                    Text("\(completedCount) of \(content.steps.count) steps complete")
+                    Text(headerProgressText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .textCase(nil)
@@ -45,19 +62,48 @@ struct MaturityLevelView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .top, spacing: 10) {
-                            Button {
-                                progressStore.toggle(step.id)
+                            Menu {
+                                Button {
+                                    progressStore.setStatus(.implemented, reason: nil, for: step.id)
+                                } label: {
+                                    Label("Implemented", systemImage: "checkmark.circle.fill")
+                                }
+                                Button {
+                                    activeStepIDForNA = step.id
+                                    naReasonText = progressStore.status(for: step.id).reason ?? ""
+                                    showingNAReasonAlert = true
+                                } label: {
+                                    Label("Not Applicable", systemImage: "slash.circle.fill")
+                                }
+                                Button {
+                                    progressStore.setStatus(.notImplemented, reason: nil, for: step.id)
+                                } label: {
+                                    Label("Not Implemented", systemImage: "circle")
+                                }
                             } label: {
-                                Image(systemName: progressStore.isCompleted(step.id) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(progressStore.isCompleted(step.id) ? .green : .secondary)
-                                    .font(.title3)
-                                    .accessibilityLabel(progressStore.isCompleted(step.id) ? "Mark \(step.title) not implemented" : "Mark \(step.title) implemented")
+                                statusIcon(for: step.id)
                             }
                             .buttonStyle(.plain)
 
                             Text(step.title)
                                 .font(.headline)
                         }
+                        
+                        if progressStore.isNotApplicable(step.id) {
+                            let reason = progressStore.status(for: step.id).reason ?? ""
+                            HStack(spacing: 6) {
+                                Image(systemName: "info.circle.fill")
+                                    .foregroundStyle(.orange)
+                                Text(reason.isEmpty ? "Not Applicable (No reason provided)" : "Not Applicable: \(reason)")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
+                        }
+
                         Text(step.description)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -132,6 +178,39 @@ struct MaturityLevelView: View {
         }
         .navigationTitle("\(controlName) — \(level.shortName)")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Not Applicable Reason", isPresented: $showingNAReasonAlert) {
+            TextField("Enter reason (optional)", text: $naReasonText)
+            Button("Save") {
+                if let stepID = activeStepIDForNA {
+                    progressStore.setStatus(.notApplicable, reason: naReasonText.trimmingCharacters(in: .whitespacesAndNewlines), for: stepID)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Provide a reason why this step is not applicable in your environment.")
+        }
+    }
+
+    @ViewBuilder
+    private func statusIcon(for stepID: String) -> some View {
+        let status = progressStore.status(for: stepID)
+        switch status.state {
+        case .implemented:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+                .font(.title3)
+                .accessibilityLabel("Implemented")
+        case .notApplicable:
+            Image(systemName: "slash.circle.fill")
+                .foregroundStyle(.orange)
+                .font(.title3)
+                .accessibilityLabel("Not Applicable")
+        case .notImplemented:
+            Image(systemName: "circle")
+                .foregroundStyle(.secondary)
+                .font(.title3)
+                .accessibilityLabel("Not Implemented")
+        }
     }
 }
 

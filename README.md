@@ -31,11 +31,12 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 
 ## Navigation
 
-- **Home** → list of all eight mitigations + M365 Additional Controls + About & Privacy.
+- **Home** → welcome splash screen on startup (recurrence toggled via custom checkbox) + compliance dashboard (optional, hideable via Reference Only Mode, containing overall compliance ring & stacked bar chart) + list of all eight mitigations + M365 Additional Controls + About & Privacy.
+- **Global Search** → search bar for querying GPO paths, registry paths, and commands across all controls, with direct navigation to matched steps.
 - **M365 Additional Controls** → persisted local settings for None, E3 with P1/P2, or E5.
-- **Control detail** → overview, ML0 description, three Maturity Level buttons.
-- **Maturity Level detail** → optional M365 / MDE additions followed by numbered implementation steps with monospaced, copy-able command / GPO path / registry-key blocks. Tap-and-hold a code block to copy.
-- A back chevron is provided automatically on every pushed screen via `NavigationStack`. Swipe-from-edge to go back also works.
+- **Control detail** → overview, ML0 description, three Maturity Level buttons, and compliance percentage progress.
+- **Maturity Level detail** → optional M365 / MDE additions followed by implementation steps with a multi-state status selection menu (Implemented, Not Applicable with custom reason, Not Implemented) and copy-able technical details.
+- **About & Privacy** → modal sheet with app purpose, author references, privacy policy statements, Reference Only Mode preference toggle, external ASD/Microsoft links, App Store rating link, and local data reset buttons.
 
 ## Project structure
 
@@ -43,26 +44,29 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 Essential 8 Knowledge Base/
 ├── Essential_8_Knowledge_BaseApp.swift   App entry point
 ├── ContentView.swift                     Root NavigationStack wrapping HomeView
-├── HomeView.swift                        List of mitigations + About sheet trigger
-├── ControlDetailView.swift               Overview, ML0, ML1/2/3 buttons
-├── MaturityLevelView.swift               Step-by-step implementation detail
+├── HomeView.swift                        List of mitigations + compliance dashboard + About sheet
+├── SplashView.swift                      Startup screen with app overview & v1.3 updates
+├── GlobalSearchView.swift                Search interface for GPOs, registry keys, and commands
+├── ControlDetailView.swift               Overview, ML0, compliance percentage & level buttons
+├── MaturityLevelView.swift               Implementation detail with status Menu & N/A reason prompt
 ├── Microsoft365SettingsView.swift        M365 Additional Controls settings page
 ├── Microsoft365LicenseMode.swift         Persisted M365 mode values
 ├── Microsoft365AdditionalControlsData.swift
 │                                           M365 / MDE additions by control
-├── AboutView.swift                       Purpose + Privacy Policy (modal sheet)
-├── AppInformation.swift                  Static About / Privacy strings
+├── AboutView.swift                       Purpose + Privacy Policy (modal sheet) + Feedback & Reset
+├── AppInformation.swift                  Static About / Privacy strings & rating URLs
 ├── EssentialControl.swift                Data model
 ├── EssentialControlsData.swift           All control + ML content
+├── ProgressStore.swift                   Store tracking step statuses (Implemented/NA/Not Implemented) & reset logic
 └── Assets.xcassets
 ```
 
 ## Architecture notes
 
-- Pure SwiftUI. No SwiftData, no Combine, no `Observable` model objects — content is static, held in an `enum EssentialControlsData` namespace.
+- Pure SwiftUI. Uses a Combine-backed `ProgressStore` to persist implementation step status (Implemented, Not Applicable, Not Implemented) via `UserDefaults` with support for legacy progress migration.
 - `NavigationStack` with value-based navigation (`NavigationLink(value:)` + `.navigationDestination(for:)`).
-- iOS 26+ deployment target. Liquid Glass styling is inherited from standard components; no custom theming.
-- No analytics, no network calls, no persisted user data. The app is entirely offline.
+- iOS 26+ deployment target. Leverages SwiftUI's Charts framework for rendering visual compliance progress.
+- No analytics, no network calls, no persisted user data outside the device. The app is entirely offline.
 - The selected M365 licensing mode is stored locally with `@AppStorage` and defaults to `None`.
 
 ## Privacy
@@ -79,7 +83,8 @@ The test targets include lightweight shipping checks:
 
 - Unit tests verify that all eight controls are present, mitigation IDs are unique, maturity-level content is populated, and the in-app privacy copy covers the expected no-data-collection statements.
 - Unit tests verify that M365 / MDE additions are hidden for `None` and expand for E3 P1, E3 P2 and E5 modes.
-- UI tests verify the app launches to the home screen, shows the mitigation list, opens the M365 Additional Controls settings page, and opens the About & Privacy sheet.
+- Unit tests verify that `ProgressStore` calculates compliance percentage correctly with mixed implementation states, handles state persistence, and resets all configurations including Reference Only Mode.
+- UI tests verify the app launches to the home screen, shows the mitigation list, opens the M365 Additional Controls settings page, toggles Reference Only Mode to hide the dashboard, and opens the About & Privacy sheet.
 
 ## Credits
 
