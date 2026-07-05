@@ -74,23 +74,28 @@ struct HomeView: View {
     @State private var isShowingAbout = false
     @AppStorage("showSplashOnStartup") private var showSplashOnStartup = true
     @AppStorage("referenceOnlyMode") private var referenceOnlyMode = false
+    @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
     @State private var isShowingSplash = false
     @State private var hasShownSplashThisSession = false
 
+    private var targetLevel: MaturityLevel {
+        MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
+    }
+
+    private var inScopeSteps: [ImplementationStep] {
+        controls.flatMap { $0.steps(upTo: targetLevel) }
+    }
+
     private var overallTotalSteps: Int {
-        controls.flatMap { control in MaturityLevel.allCases.flatMap { control.content(for: $0).steps } }.count
+        inScopeSteps.count
     }
 
     private var overallImplementedSteps: Int {
-        controls.flatMap { control in MaturityLevel.allCases.flatMap { control.content(for: $0).steps } }
-            .filter { progressStore.isCompleted($0.id) }
-            .count
+        inScopeSteps.filter { progressStore.isCompleted($0.id) }.count
     }
 
     private var overallNASteps: Int {
-        controls.flatMap { control in MaturityLevel.allCases.flatMap { control.content(for: $0).steps } }
-            .filter { progressStore.isNotApplicable($0.id) }
-            .count
+        inScopeSteps.filter { progressStore.isNotApplicable($0.id) }.count
     }
 
     private var overallCompliancePercentage: Double {
@@ -105,7 +110,7 @@ struct HomeView: View {
     private var chartData: [ChartDataPoint] {
         var points: [ChartDataPoint] = []
         for control in controls {
-            let allSteps = MaturityLevel.allCases.flatMap { control.content(for: $0).steps }
+            let allSteps = control.steps(upTo: targetLevel)
             
             let implemented = progressStore.completedCount(for: allSteps)
             let na = progressStore.notApplicableCount(for: allSteps)
@@ -129,6 +134,22 @@ struct HomeView: View {
             if !referenceOnlyMode {
                 Section {
                     VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Target Maturity Level")
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
+
+                            Picker("Target maturity level", selection: $targetMaturityRawValue) {
+                                ForEach(MaturityLevel.allCases) { level in
+                                    Text(level.shortName).tag(level.rawValue)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .accessibilityLabel("Target maturity level")
+                        }
+
+                        Divider()
+
                         HStack(spacing: 20) {
                             ComplianceRingView(percentage: overallCompliancePercentage)
                             
@@ -195,7 +216,7 @@ struct HomeView: View {
                             }
                             .padding(.vertical, 4)
                             Spacer()
-                            if progressStore.isControlComplete(control) {
+                            if progressStore.isControlComplete(control, upTo: targetLevel) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                                     .imageScale(.medium)

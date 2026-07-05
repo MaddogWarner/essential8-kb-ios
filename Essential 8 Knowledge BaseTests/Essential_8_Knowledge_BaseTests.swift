@@ -124,12 +124,14 @@ struct Essential_8_Knowledge_BaseTests {
         store.setStatus(.implemented, reason: nil, for: "reset-test-1")
         store.setStatus(.notApplicable, reason: "Some reason", for: "reset-test-2")
         UserDefaults.standard.set("e5", forKey: "microsoft365LicenseMode")
+        UserDefaults.standard.set(MaturityLevel.ml1.rawValue, forKey: "targetMaturityLevel")
         UserDefaults.standard.set(false, forKey: "showSplashOnStartup")
         UserDefaults.standard.set(true, forKey: "referenceOnlyMode")
         
         #expect(store.status(for: "reset-test-1").state == .implemented)
         #expect(store.status(for: "reset-test-2").state == .notApplicable)
         #expect(UserDefaults.standard.string(forKey: "microsoft365LicenseMode") == "e5")
+        #expect(UserDefaults.standard.integer(forKey: "targetMaturityLevel") == MaturityLevel.ml1.rawValue)
         #expect(UserDefaults.standard.bool(forKey: "showSplashOnStartup") == false)
         #expect(UserDefaults.standard.bool(forKey: "referenceOnlyMode") == true)
         
@@ -140,7 +142,80 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(store.status(for: "reset-test-2").reason == nil)
         
         #expect(UserDefaults.standard.object(forKey: "microsoft365LicenseMode") == nil)
+        #expect(UserDefaults.standard.object(forKey: "targetMaturityLevel") == nil)
         #expect(UserDefaults.standard.object(forKey: "showSplashOnStartup") == nil)
         #expect(UserDefaults.standard.object(forKey: "referenceOnlyMode") == nil)
+    }
+
+    @Test func maturityLevelCumulativeLevelsAreOrdered() throws {
+        #expect(MaturityLevel.ml1.cumulativeLevels == [.ml1])
+        #expect(MaturityLevel.ml3.cumulativeLevels == [.ml1, .ml2, .ml3])
+    }
+
+    @Test func controlStepsUpToTargetAreCumulative() throws {
+        let control = EssentialControlsData.applicationControl
+
+        #expect(control.steps(upTo: .ml1).count == control.ml1.steps.count)
+        #expect(control.steps(upTo: .ml3).count == control.ml1.steps.count + control.ml2.steps.count + control.ml3.steps.count)
+    }
+
+    @Test @MainActor func progressStoreCalculatesTargetScopedCompliance() throws {
+        let store = ProgressStore.shared
+        store.resetAll()
+
+        let control = EssentialControlsData.applicationControl
+        for step in control.ml1.steps {
+            store.setStatus(.implemented, reason: nil, for: step.id)
+        }
+
+        #expect(store.compliancePercentage(for: control.steps(upTo: .ml1)) == 100.0)
+        #expect(store.compliancePercentage(for: control.steps(upTo: .ml3)) < 100.0)
+
+        store.resetAll()
+    }
+
+    @Test @MainActor func controlCompletionUsesTargetScope() throws {
+        let store = ProgressStore.shared
+        store.resetAll()
+
+        let control = EssentialControlsData.applicationControl
+        for step in control.ml1.steps {
+            store.setStatus(.implemented, reason: nil, for: step.id)
+        }
+
+        #expect(store.isControlComplete(control, upTo: .ml1))
+        #expect(!store.isControlComplete(control, upTo: .ml3))
+
+        store.resetAll()
+    }
+
+    @Test func ismControlsUseExpectedIdentifierFormat() throws {
+        let pattern = /^ISM-\d{4}$/
+        let ismControls = EssentialControlsData.all.flatMap { control in
+            MaturityLevel.allCases.flatMap { level in
+                control.content(for: level).steps.flatMap(\.ismControls)
+            }
+        }
+
+        for identifier in ismControls {
+            #expect(identifier.wholeMatch(of: pattern) != nil)
+        }
+
+        #expect(!ismControls.isEmpty)
+    }
+
+    @Test func searchMatchesISMIdentifiers() throws {
+        let taggedStep = ImplementationStep(
+            id: "test-ism",
+            title: "Tagged step",
+            description: "Fixture",
+            ismControls: ["ISM-1490"],
+            technicalDetails: []
+        )
+
+        #expect(taggedStep.matchesSearchQuery("ISM-1490"))
+        #expect(taggedStep.matchesSearchQuery("1490"))
+        #expect(taggedStep.matchesSearchQuery("ism-1490"))
+        #expect(taggedStep.matchingDetails(for: "1490") == ["ISM-1490"])
     }
 }

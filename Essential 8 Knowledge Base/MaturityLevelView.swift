@@ -104,6 +104,8 @@ struct MaturityLevelView: View {
                             .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
                         }
 
+                        ISMControlsCapsules(controls: step.ismControls)
+
                         Text(step.description)
                             .font(.subheadline)
                             .foregroundStyle(.primary)
@@ -210,6 +212,32 @@ struct MaturityLevelView: View {
                 .foregroundStyle(.secondary)
                 .font(.title3)
                 .accessibilityLabel("Not Implemented")
+        }
+    }
+}
+
+struct ISMControlsCapsules: View {
+    let controls: [String]
+
+    private var columns: [GridItem] {
+        [GridItem(.adaptive(minimum: 72), spacing: 6, alignment: .leading)]
+    }
+
+    var body: some View {
+        if !controls.isEmpty {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
+                ForEach(controls, id: \.self) { control in
+                    Text(control)
+                        .font(.system(.caption2, design: .monospaced).bold())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.1), in: Capsule())
+                        .foregroundStyle(.blue)
+                        .textSelection(.enabled)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("ISM controls: \(controls.joined(separator: ", "))")
         }
     }
 }

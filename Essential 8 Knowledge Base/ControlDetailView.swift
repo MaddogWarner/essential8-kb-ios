@@ -9,9 +9,14 @@ struct ControlDetailView: View {
     let control: EssentialControl
 
     @EnvironmentObject private var progressStore: ProgressStore
+    @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
+
+    private var targetLevel: MaturityLevel {
+        MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
+    }
 
     private var allSteps: [ImplementationStep] {
-        MaturityLevel.allCases.flatMap { control.content(for: $0).steps }
+        control.steps(upTo: targetLevel)
     }
 
     private var completedCount: Int {
@@ -87,6 +92,9 @@ struct ControlDetailView: View {
                 .padding(.vertical, 4)
             } header: {
                 Text("Implementation Progress")
+            } footer: {
+                Text("Measured against your target of ML\(targetLevel.rawValue). Change the target on the home dashboard.")
+                    .font(.footnote)
             }
 
             Section {
@@ -118,6 +126,7 @@ struct ControlDetailView: View {
         let naCount = progressStore.notApplicableCount(for: content.steps)
         let totalCount = content.steps.count
         let progressText = naCount > 0 ? "\(doneCount)/\(totalCount) (\(naCount) N/A)" : "\(doneCount)/\(totalCount)"
+        let isBeyondTarget = level.rawValue > targetLevel.rawValue
 
         NavigationLink(value: MaturityLevelDestination(level: level, content: content)) {
             HStack(alignment: .top, spacing: 12) {
@@ -134,9 +143,18 @@ struct ControlDetailView: View {
                         .lineLimit(3)
                 }
                 Spacer()
-                Text(progressText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if isBeyondTarget {
+                    Text("Beyond target")
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.secondary.opacity(0.12), in: Capsule())
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(progressText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(.vertical, 4)
         }

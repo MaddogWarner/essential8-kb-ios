@@ -16,12 +16,12 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testSplashViewFlow() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "YES"]
+        app.launchArguments = ["-showSplashOnStartup", "YES", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
         app.launch()
 
         // 1. Verify splash elements are present
         XCTAssertTrue(app.staticTexts["Essential 8"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["What's New in Version 1.3"].exists)
+        XCTAssertTrue(app.staticTexts["What's New in Version 1.4"].exists)
 
         let checkbox = app.buttons["Always show on startup"]
         XCTAssertTrue(checkbox.exists)
@@ -41,7 +41,7 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testHomeScreenShowsControls() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "NO"]
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
         app.launch()
 
         XCTAssertTrue(app.navigationBars["Essential 8 Knowledge Base"].waitForExistence(timeout: 5))
@@ -52,7 +52,7 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testMicrosoft365AdditionalControlsSettings() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "NO"]
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
         app.launch()
 
         XCTAssertTrue(app.buttons["M365 Additional Controls"].waitForExistence(timeout: 5))
@@ -76,7 +76,7 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testAboutAndPrivacyScreen() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "NO"]
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
         app.launch()
 
         let aboutButton = app.buttons["About & Privacy"]
@@ -119,7 +119,7 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testReferenceOnlyModeToggle() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "NO"]
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
         app.launch()
 
         // 1. Verify "Maturity Dashboard" header exists initially
@@ -162,10 +162,45 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     }
 
     @MainActor
+    func testTargetMaturityPickerPersistsAcrossRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Target Maturity Level"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["ML3"].isSelected)
+
+        app.buttons["ML1"].tap()
+        XCTAssertTrue(app.buttons["ML1"].isSelected)
+
+        app.terminate()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-referenceOnlyMode", "NO"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Target Maturity Level"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["ML1"].isSelected)
+
+        app.buttons["ML3"].tap()
+    }
+
+    @MainActor
+    func testBeyondTargetBadgesShownForLowerTarget() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "1", "-referenceOnlyMode", "NO"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Application Control"].waitForExistence(timeout: 5))
+        app.staticTexts["Application Control"].tap()
+
+        XCTAssertTrue(app.navigationBars["Mitigation 1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Beyond target"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             let app = XCUIApplication()
-            app.launchArguments = ["-showSplashOnStartup", "NO"]
+            app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
             app.launch()
         }
     }

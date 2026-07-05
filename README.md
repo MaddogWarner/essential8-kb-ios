@@ -13,6 +13,7 @@ The optional **M365 Additional Controls** settings page lets administrators sele
 - Covers the **November 2023** release of the ASD Essential Eight Maturity Model.
 - Only configuration achievable using **built-in Windows OS tooling** is documented (Group Policy, registry, AppLocker, Windows Defender Application Control, Microsoft Defender / ASR rules, Windows Update for Business, Windows LAPS, Windows Hello for Business, Windows Server Backup, ReFS, Credential Guard, etc.).
 - Where a Maturity Level requires capability beyond what Windows ships natively (e.g. authenticated vulnerability scanning, cloud IdP for phishing-resistant MFA at ML3, immutable backup storage), the gap is called out explicitly on that level's screen under **"Beyond Windows built-in tooling"**.
+- ISM control identifiers are sourced from ASD's *Essential Eight maturity model and ISM mapping* (October 2024) and displayed on mapped implementation steps. Global Search can find both full IDs (e.g. `ISM-1490`) and numeric fragments.
 - Microsoft 365 additions are hidden by default. If enabled, they are shown as additional or partial supports based on the selected licensing mode: **E3 + Entra ID P1**, **E3 + Entra ID P2**, or **E5**.
 - Always verify against the current ASD Maturity Model before implementing — content reflects the model as known at the time of writing.
 
@@ -31,11 +32,11 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 
 ## Navigation
 
-- **Home** → welcome splash screen on startup (recurrence toggled via custom checkbox) + compliance dashboard (optional, hideable via Reference Only Mode, containing overall compliance ring & stacked bar chart) + list of all eight mitigations + M365 Additional Controls + About & Privacy.
-- **Global Search** → search bar for querying GPO paths, registry paths, and commands across all controls, with direct navigation to matched steps.
+- **Home** → welcome splash screen on startup (recurrence toggled via custom checkbox) + compliance dashboard (optional, hideable via Reference Only Mode, containing target maturity picker, overall compliance ring & stacked bar chart) + list of all eight mitigations + M365 Additional Controls + About & Privacy.
+- **Global Search** → search bar for querying GPO paths, registry paths, commands, and ISM identifiers across all controls, with direct navigation to matched steps.
 - **M365 Additional Controls** → persisted local settings for None, E3 with P1/P2, or E5.
-- **Control detail** → overview, ML0 description, three Maturity Level buttons, and compliance percentage progress.
-- **Maturity Level detail** → optional M365 / MDE additions followed by implementation steps with a multi-state status selection menu (Implemented, Not Applicable with custom reason, Not Implemented) and copy-able technical details.
+- **Control detail** → overview, ML0 description, three Maturity Level buttons, target-scoped compliance percentage progress, and beyond-target badges for maturity levels above the selected target.
+- **Maturity Level detail** → optional M365 / MDE additions followed by implementation steps with verified ISM tag display for ASD-mapped steps, a multi-state status selection menu (Implemented, Not Applicable with custom reason, Not Implemented) and copy-able technical details.
 - **About & Privacy** → modal sheet with app purpose, author references, privacy policy statements, Reference Only Mode preference toggle, external ASD/Microsoft links, App Store rating link, and local data reset buttons.
 
 ## Project structure
@@ -44,11 +45,11 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 Essential 8 Knowledge Base/
 ├── Essential_8_Knowledge_BaseApp.swift   App entry point
 ├── ContentView.swift                     Root NavigationStack wrapping HomeView
-├── HomeView.swift                        List of mitigations + compliance dashboard + About sheet
-├── SplashView.swift                      Startup screen with app overview & v1.3 updates
-├── GlobalSearchView.swift                Search interface for GPOs, registry keys, and commands
-├── ControlDetailView.swift               Overview, ML0, compliance percentage & level buttons
-├── MaturityLevelView.swift               Implementation detail with status Menu & N/A reason prompt
+├── HomeView.swift                        List of mitigations + target-scoped compliance dashboard + About sheet
+├── SplashView.swift                      Startup screen with app overview & v1.4 updates
+├── GlobalSearchView.swift                Search interface for GPOs, registry keys, commands, and ISM IDs
+├── ControlDetailView.swift               Overview, ML0, target-scoped compliance & level buttons
+├── MaturityLevelView.swift               Implementation detail with ISM tags, status Menu & N/A reason prompt
 ├── Microsoft365SettingsView.swift        M365 Additional Controls settings page
 ├── Microsoft365LicenseMode.swift         Persisted M365 mode values
 ├── Microsoft365AdditionalControlsData.swift
@@ -68,6 +69,7 @@ Essential 8 Knowledge Base/
 - iOS 26+ deployment target. Leverages SwiftUI's Charts framework for rendering visual compliance progress.
 - No analytics, no network calls, no persisted user data outside the device. The app is entirely offline.
 - The selected M365 licensing mode is stored locally with `@AppStorage` and defaults to `None`.
+- The selected target maturity level is stored locally with `@AppStorage` and defaults to ML3 so existing compliance totals remain unchanged until the user chooses a lower target.
 
 ## Privacy
 
@@ -83,8 +85,9 @@ The test targets include lightweight shipping checks:
 
 - Unit tests verify that all eight controls are present, mitigation IDs are unique, maturity-level content is populated, and the in-app privacy copy covers the expected no-data-collection statements.
 - Unit tests verify that M365 / MDE additions are hidden for `None` and expand for E3 P1, E3 P2 and E5 modes.
-- Unit tests verify that `ProgressStore` calculates compliance percentage correctly with mixed implementation states, handles state persistence, and resets all configurations including Reference Only Mode.
-- UI tests verify the app launches to the home screen, shows the mitigation list, opens the M365 Additional Controls settings page, toggles Reference Only Mode to hide the dashboard, and opens the About & Privacy sheet.
+- Unit tests verify that `ProgressStore` calculates compliance percentage correctly with mixed implementation states, handles target-scoped maturity calculations, handles state persistence, and resets all configurations including Reference Only Mode and Target Maturity Level.
+- Unit tests verify ISM identifier format, guard against accidental loss of populated mappings, and cover search matching behaviour for ISM IDs.
+- UI tests verify the app launches to the home screen, shows the mitigation list, opens the M365 Additional Controls settings page, persists the Target Maturity Level picker, shows beyond-target badges, toggles Reference Only Mode to hide the dashboard, and opens the About & Privacy sheet.
 
 ## Credits
 

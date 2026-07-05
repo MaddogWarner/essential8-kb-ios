@@ -15,6 +15,32 @@ struct SearchResult: Identifiable {
     let matchedDetails: [String]
 }
 
+extension ImplementationStep {
+    func matchesSearchQuery(_ query: String) -> Bool {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return false }
+
+        return title.localizedCaseInsensitiveContains(trimmedQuery)
+            || description.localizedCaseInsensitiveContains(trimmedQuery)
+            || technicalDetails.contains { $0.localizedCaseInsensitiveContains(trimmedQuery) }
+            || ismControls.contains { $0.localizedCaseInsensitiveContains(trimmedQuery) }
+    }
+
+    func matchingDetails(for query: String) -> [String] {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return [] }
+
+        let matchedTechnicalDetails = technicalDetails.filter {
+            $0.localizedCaseInsensitiveContains(trimmedQuery)
+        }
+        let matchedISMControls = ismControls.filter {
+            $0.localizedCaseInsensitiveContains(trimmedQuery)
+        }
+
+        return matchedTechnicalDetails + matchedISMControls
+    }
+}
+
 struct GlobalSearchView: View {
     @State private var searchText = ""
     
@@ -30,17 +56,7 @@ struct GlobalSearchView: View {
             for level in MaturityLevel.allCases {
                 let content = control.content(for: level)
                 for (index, step) in content.steps.enumerated() {
-                    let matchesTitle = step.title.localizedCaseInsensitiveContains(query)
-                    let matchesDescription = step.description.localizedCaseInsensitiveContains(query)
-                    
-                    var matchedTechnicalDetails: [String] = []
-                    for detail in step.technicalDetails {
-                        if detail.localizedCaseInsensitiveContains(query) {
-                            matchedTechnicalDetails.append(detail)
-                        }
-                    }
-                    
-                    if matchesTitle || matchesDescription || !matchedTechnicalDetails.isEmpty {
+                    if step.matchesSearchQuery(query) {
                         results.append(
                             SearchResult(
                                 control: control,
@@ -48,7 +64,7 @@ struct GlobalSearchView: View {
                                 content: content,
                                 step: step,
                                 stepNumber: index,
-                                matchedDetails: matchedTechnicalDetails
+                                matchedDetails: step.matchingDetails(for: query)
                             )
                         )
                     }
@@ -81,7 +97,7 @@ struct GlobalSearchView: View {
                         .padding(.top, 40)
                     Text("Search technical details")
                         .font(.headline)
-                    Text("Search registry paths, GPO settings, commands, or controls across the entire knowledge base.")
+                    Text("Search registry paths, GPO settings, commands, ISM control numbers, or controls across the entire knowledge base.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -96,7 +112,7 @@ struct GlobalSearchView: View {
                         .padding(.top, 40)
                     Text("No results found")
                         .font(.headline)
-                    Text("Try searching for terms like 'HKLM', 'AppLocker', 'Registry', 'sc config', or 'block'.")
+                    Text("Try searching for terms like 'HKLM', 'AppLocker', 'ISM-1490', 'Registry', 'sc config', or 'block'.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -178,7 +194,7 @@ struct GlobalSearchView: View {
         }
         .navigationTitle("Global Search")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search GPOs, registries, commands...")
+        .searchable(text: $searchText, prompt: "Search GPOs, registries, commands, ISM IDs...")
     }
 }
 

@@ -46,12 +46,26 @@ struct SplashView: View {
 
                     // What's New Section Title
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("What's New in Version 1.3")
+                        Text("What's New in Version 1.4")
                             .font(.headline)
                             .padding(.horizontal, 8)
 
                         // Feature list
                         VStack(alignment: .leading, spacing: 24) {
+                            featureRow(
+                                icon: "target",
+                                color: .indigo,
+                                title: "Target Maturity Level",
+                                description: "Set your organisation's target (ML1–ML3) and measure dashboard compliance against it instead of everything."
+                            )
+
+                            featureRow(
+                                icon: "number",
+                                color: .teal,
+                                title: "ISM Control Mapping",
+                                description: "Verified ISM control identifiers are visible on mapped implementation steps and searchable in Global Search."
+                            )
+
                             featureRow(
                                 icon: "chart.xyaxis.line",
                                 color: .blue,
@@ -60,24 +74,10 @@ struct SplashView: View {
                             )
 
                             featureRow(
-                                icon: "checklist",
-                                color: .green,
-                                title: "Multi-State Statuses",
-                                description: "Mark steps as Implemented, Not Applicable (with custom reasons), or Pending."
-                            )
-
-                            featureRow(
                                 icon: "magnifyingglass",
                                 color: .purple,
                                 title: "Global Search",
                                 description: "Find specific Group Policies, registry keys, and commands instantly across all controls."
-                            )
-
-                            featureRow(
-                                icon: "star.fill",
-                                color: .orange,
-                                title: "Feedback & Settings Tools",
-                                description: "Rate the app on the App Store or reset your local data back to defaults directly in the About page."
                             )
 
                             featureRow(

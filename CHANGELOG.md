@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4 — 2026-07-05
+
+- Added an organisation-wide Target Maturity Level picker on the home dashboard so compliance metrics can be measured against ML1, ML2 or ML3 using cumulative maturity-level scope.
+- Updated dashboard rings, stacked bar chart data, control-detail progress, and home-screen completion badges to use the selected target maturity level.
+- Added "Beyond target" badges for maturity levels above the selected target while keeping those levels browsable as reference content.
+- Added verified ISM control mappings from ASD's October 2024 *Essential Eight maturity model and ISM mapping*, with maturity-level display support and Global Search matching for ISM IDs.
+- Updated the startup splash screen for Version 1.4 and bumped marketing version/build numbers to 1.4/5.
+- Added unit and UI tests for target-scoped maturity maths, reset behaviour, search matching, picker persistence, and beyond-target badges.
+
 ## 1.3 — 2026-07-02
 
 - Added a "Reference Only Mode" toggle in the About page which allows users to hide or display the home screen compliance dashboard.

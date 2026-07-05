@@ -55,6 +55,7 @@ final class ProgressStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: key)
         UserDefaults.standard.removeObject(forKey: legacyKey)
         UserDefaults.standard.removeObject(forKey: "microsoft365LicenseMode")
+        UserDefaults.standard.removeObject(forKey: "targetMaturityLevel")
         UserDefaults.standard.removeObject(forKey: "showSplashOnStartup")
         UserDefaults.standard.removeObject(forKey: "referenceOnlyMode")
         save()
@@ -107,8 +108,8 @@ final class ProgressStore: ObservableObject {
         return Double(comp) / Double(denom) * 100.0
     }
 
-    func isControlComplete(_ control: EssentialControl) -> Bool {
-        let allSteps = MaturityLevel.allCases.flatMap { control.content(for: $0).steps }
+    func isControlComplete(_ control: EssentialControl, upTo target: MaturityLevel) -> Bool {
+        let allSteps = control.steps(upTo: target)
         if allSteps.isEmpty { return false }
         return allSteps.allSatisfy { step in
             let st = status(for: step.id).state
