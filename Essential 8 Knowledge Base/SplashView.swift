@@ -46,12 +46,19 @@ struct SplashView: View {
 
                     // What's New Section Title
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("What's New in Version 1.4")
+                        Text("What's New in Version 1.5")
                             .font(.headline)
                             .padding(.horizontal, 8)
 
                         // Feature list
                         VStack(alignment: .leading, spacing: 24) {
+                            featureRow(
+                                icon: "checkmark.seal",
+                                color: .green,
+                                title: "Technical Content Corrections",
+                                description: "AppLocker deny paths, Office macro policy targets and Edge hardening guidance corrected and re-verified against Microsoft documentation."
+                            )
+
                             featureRow(
                                 icon: "target",
                                 color: .indigo,

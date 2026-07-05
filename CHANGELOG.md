@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5 — 2026-07-05
+
+Cybersecurity technical content corrections (ported from the Android review, shared across all platforms).
+
+- Replaced the unsupported AppLocker environment variables `%TEMP%` and `%LOCALAPPDATA%` in Application Control ML1 with the AppLocker-compliant deny path `%OSDRIVE%\Users\*\AppData\Local\Temp\*`.
+- Added a caveat to `sc config AppIDSvc start= auto` noting it returns Access Denied on Windows 10 1809+ and the GPO alternative should be used.
+- Replaced the unrelated "Block third party cookies" GPO in the Edge Java step with `ExtensionInstallBlocklist = *`, and softened the ads step description to "many tracking-based ad networks".
+- Added a gapNote to User Application Hardening ML1 acknowledging Edge Tracking Prevention does not provide complete ad-blocking compliance.
+- Restricted the Mark-of-the-Web macro block policy list to supported apps (Word, Excel, PowerPoint, Access, Visio), noting Outlook, Project and Publisher do not support the policy.
+- Appended a plaintext-credential caution to the `wbadmin enable backup` scheduling command.
+- Updated the startup splash for Version 1.5 and bumped marketing version/build numbers to 1.5/6.
+
 ## 1.4 — 2026-07-05
 
 - Added an organisation-wide Target Maturity Level picker on the home dashboard so compliance metrics can be measured against ML1, ML2 or ML3 using cumulative maturity-level scope.
