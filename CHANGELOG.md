@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6 — 2026-07-13
+
+- Added conservative Workstation, Server and Both scope tags to implementation steps, with app-wide filtering and compliance recalculation over the selected scope.
+- Added visible scope badges for workstation-only and server-only steps on maturity-level pages.
+- Added full offline JSON backup export and validated replace-on-import restore, including step statuses, N/A reasons and all app settings.
+- Added a 1 MB import safety cap, versioned backup schema and destructive confirmation before existing app data is replaced.
+- Centralised persisted setting keys in a registry shared by reset and backup operations, with a coverage test to prevent future settings drift.
+- Added an OS Scope picker, Backup & Restore tools and bundle-driven app version/build display to About.
+- Reset the startup splash to show only Version 1.6 features and bumped the marketing version/build to 1.6/7.
+- Added unit and UI coverage for scope matching, filtered compliance, backup validation and round-trip restore, settings coverage and scope persistence.
+
 ## 1.5 — 2026-07-05
 
 Cybersecurity technical content corrections (ported from the Android review, shared across all platforms).

@@ -6,8 +6,9 @@ Forward-looking feature plan for the Essential 8 Knowledge Base app. Shipped his
 
 - **v1.4 — Target Maturity Level + ISM control mapping.** Merged to `main` 05/07/2026 (PR #8). ISM identifiers populated from `reference/e8-ism-mapping-oct2024.pdf` and verified against the source (64/67 steps mapped — see `reference/e8-ism-mapping-summary.md`).
 - **v1.5 — Technical content corrections.** Merged to `main` 05/07/2026 (PR #9). Corrections ported from the Android review (AppLocker deny paths, AppIDSvc caveat, Edge Java/ads guidance, MOTW supported-app list, `wbadmin` credential caution). See `CHANGELOG.md` 1.5. Note: the v1.5 number was taken by these corrections — the feature candidates previously listed under v1.5 moved to v1.6.
+- **v1.6 — OS scope tags + progress backup and transfer.** Implemented 13/07/2026. Adds conservative Workstation/Server filtering with recalculated compliance, full offline JSON backup/restore, persisted-state coverage enforcement and bundle-driven version display.
 
-## Scoped — v1.6
+## Scoped — v1.6 (implemented)
 
 Agreed 13/07/2026: v1.6 = candidate 6 (OS scope tags) + candidate 7 (progress backup/transfer), plus About-page app-version display. Build spec written in `codex-plan.md`; branch off `main` (contains v1.5 as of PR #9). Locked decisions: scope filter hides steps and recalculates compliance; export captures all persistent state; import replaces after confirmation; tagging is conservative (default `both`); a persisted-state registry + coverage test enforces that future persistent data is included in the backup format.
 
@@ -52,25 +53,13 @@ The chain is lossy, so every derived technique tag needs manual curation and rev
 
 **Why:** auditors' first two questions are "when was this implemented?" and "show me the evidence" — today the app can answer neither. Also multiplies the value of the compliance report export (candidate 1): a PDF with dates and notes is an assessment artefact; one without is just a checklist.
 
-### 6. OS scope tags — Workstation vs Server filtering
-
-Tag each implementation step with where it applies (Windows 11 client, Windows Server, or both) and let the user filter. A data-model field plus a filter toggle; no new screens.
-
-**Why:** the content already mixes the two — `wbadmin`/Windows Server Backup, Credential Guard, ASR rule availability and Office-related steps differ materially between a workstation fleet and a domain controller. An admin at a server console currently has to mentally skip client-only steps.
-
-### 7. Progress backup and transfer (export/import)
-
-JSON export/import of `ProgressStore` state via the share sheet — AirDrop to a new phone, or file it as a backup. Stays fully offline.
-
-**Why:** all assessment data lives in `UserDefaults` on one device — a lost or replaced phone wipes potentially weeks of assessment work. Honours the no-network privacy posture, and is the natural enabler for environment profiles (candidate 3): a profile is essentially an importable snapshot.
-
-### 8. iPad split-view layout (and a compliance widget)
+### 6. iPad split-view layout (and a compliance widget)
 
 Adopt `NavigationSplitView` so the controls list sits on the left and step detail on the right, with proper multitasking/Slide Over support. While in that layer, add a small home-screen widget showing the compliance ring (WidgetKit reading the shared store).
 
 **Why:** the app is iPhone-shaped, but the real "next to a console" device is often an iPad beside an RDP session. The widget adds daily glanceability for very little extra code.
 
-### 9. Spotlight and App Intents integration for Global Search
+### 7. Spotlight and App Intents integration for Global Search
 
 Expose the Global Search index (GPO paths, registry keys, commands, ISM IDs) to the OS via Core Spotlight and App Intents, deep-linking straight to the matched step. Include a "Search Essential 8" Siri shortcut.
 
@@ -79,5 +68,5 @@ Expose the Global Search index (GPO paths, registry keys, commands, ISM IDs) to 
 ## Dependencies
 
 - Candidate 4 (ATT&CK) depends on the v1.4 ISM mapping (shipped).
-- Candidate 5 (audit trail) and candidate 7 (backup/transfer) both compound with candidate 1 (export report); consider sequencing them together.
-- Candidate 7 is groundwork for candidate 3 (profiles).
+- Candidate 5 (audit trail) compounds with candidate 1 (export report); consider sequencing them together.
+- The shipped v1.6 backup format is groundwork for candidate 3 (profiles).
