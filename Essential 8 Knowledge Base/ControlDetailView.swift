@@ -10,13 +10,18 @@ struct ControlDetailView: View {
 
     @EnvironmentObject private var progressStore: ProgressStore
     @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
+    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
 
     private var targetLevel: MaturityLevel {
         MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
     }
 
+    private var scopeFilter: OSScope {
+        OSScope(rawValue: osScopeRawValue) ?? .both
+    }
+
     private var allSteps: [ImplementationStep] {
-        control.steps(upTo: targetLevel)
+        control.steps(upTo: targetLevel, scope: scopeFilter)
     }
 
     private var completedCount: Int {
@@ -122,9 +127,10 @@ struct ControlDetailView: View {
 
     @ViewBuilder
     private func maturityButton(level: MaturityLevel, content: MaturityLevelContent) -> some View {
-        let doneCount = progressStore.completedCount(for: content.steps)
-        let naCount = progressStore.notApplicableCount(for: content.steps)
-        let totalCount = content.steps.count
+        let scopedSteps = content.steps.filter { $0.matches(scope: scopeFilter) }
+        let doneCount = progressStore.completedCount(for: scopedSteps)
+        let naCount = progressStore.notApplicableCount(for: scopedSteps)
+        let totalCount = scopedSteps.count
         let progressText = naCount > 0 ? "\(doneCount)/\(totalCount) (\(naCount) N/A)" : "\(doneCount)/\(totalCount)"
         let isBeyondTarget = level.rawValue > targetLevel.rawValue
 

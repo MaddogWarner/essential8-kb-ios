@@ -46,52 +46,31 @@ struct SplashView: View {
 
                     // What's New Section Title
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("What's New in Version 1.5")
+                        Text("What's New in Version 1.6")
                             .font(.headline)
                             .padding(.horizontal, 8)
 
                         // Feature list
                         VStack(alignment: .leading, spacing: 24) {
                             featureRow(
-                                icon: "checkmark.seal",
-                                color: .green,
-                                title: "Technical Content Corrections",
-                                description: "AppLocker deny paths, Office macro policy targets and Edge hardening guidance corrected and re-verified against Microsoft documentation."
-                            )
-
-                            featureRow(
-                                icon: "target",
-                                color: .indigo,
-                                title: "Target Maturity Level",
-                                description: "Set your organisation's target (ML1–ML3) and measure dashboard compliance against it instead of everything."
-                            )
-
-                            featureRow(
-                                icon: "number",
-                                color: .teal,
-                                title: "ISM Control Mapping",
-                                description: "Verified ISM control identifiers are visible on mapped implementation steps and searchable in Global Search."
-                            )
-
-                            featureRow(
-                                icon: "chart.xyaxis.line",
+                                icon: "desktopcomputer",
                                 color: .blue,
-                                title: "Compliance Dashboard",
-                                description: "Track maturity level progress on the home screen with animated charts and compliance rings."
+                                title: "OS Scope Filtering",
+                                description: "Filter every step to Workstation, Server or Both — compliance recalculates for the environment you manage."
                             )
 
                             featureRow(
-                                icon: "magnifyingglass",
-                                color: .purple,
-                                title: "Global Search",
-                                description: "Find specific Group Policies, registry keys, and commands instantly across all controls."
+                                icon: "arrow.up.arrow.down.circle",
+                                color: .green,
+                                title: "Backup & Transfer",
+                                description: "Export all progress and settings as JSON and restore it on another device — fully offline."
                             )
 
                             featureRow(
-                                icon: "eye.slash",
-                                color: .red,
-                                title: "Reference Only Mode",
-                                description: "Optionally hide the home screen compliance dashboard to use the app purely as a technical reference guide."
+                                icon: "info.circle",
+                                color: .teal,
+                                title: "App Version in About",
+                                description: "The About page now shows the installed app version and build."
                             )
                         }
                     }

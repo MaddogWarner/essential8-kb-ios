@@ -5,6 +5,14 @@
 
 import Foundation
 
+/// Where an implementation step applies. `both` is the safe default — only
+/// tag `workstation` or `server` when the content is unambiguous.
+enum OSScope: String, Codable, CaseIterable {
+    case workstation
+    case server
+    case both
+}
+
 struct EssentialControl: Identifiable, Hashable {
     let id: Int
     let name: String
@@ -26,6 +34,11 @@ struct EssentialControl: Identifiable, Hashable {
     /// All steps in scope when targeting `level` (cumulative).
     func steps(upTo level: MaturityLevel) -> [ImplementationStep] {
         level.cumulativeLevels.flatMap { content(for: $0).steps }
+    }
+
+    /// All steps in scope when targeting `level`, filtered to `scope`.
+    func steps(upTo level: MaturityLevel, scope: OSScope) -> [ImplementationStep] {
+        steps(upTo: level).filter { $0.matches(scope: scope) }
     }
 }
 
@@ -55,6 +68,8 @@ struct ImplementationStep: Identifiable, Hashable {
     let id: String
     let title: String
     let description: String
+    /// OS scope this step applies to. Defaults to `.both`; see `OSScope`.
+    let osScope: OSScope
     /// ISM control identifiers this step maps to (e.g. "ISM-1490"), from the
     /// ASD Essential Eight maturity model and ISM mapping (October 2024). Empty
     /// when no confident mapping exists.
@@ -66,13 +81,22 @@ struct ImplementationStep: Identifiable, Hashable {
         id: String,
         title: String,
         description: String,
+        osScope: OSScope = .both,
         ismControls: [String] = [],
         technicalDetails: [String] = []
     ) {
         self.id = id
         self.title = title
         self.description = description
+        self.osScope = osScope
         self.ismControls = ismControls
         self.technicalDetails = technicalDetails
+    }
+}
+
+extension ImplementationStep {
+    /// True when this step is in scope for the user's selected filter.
+    func matches(scope filter: OSScope) -> Bool {
+        filter == .both || osScope == .both || osScope == filter
     }
 }

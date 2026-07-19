@@ -16,12 +16,12 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
     @MainActor
     func testSplashViewFlow() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-showSplashOnStartup", "YES", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO"]
+        app.launchArguments = ["-showSplashOnStartup", "YES", "-targetMaturityLevel", "3", "-referenceOnlyMode", "NO", "-osScopeFilter", "both"]
         app.launch()
 
         // 1. Verify splash elements are present
         XCTAssertTrue(app.staticTexts["Essential 8"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["What's New in Version 1.4"].exists)
+        XCTAssertTrue(app.staticTexts["What's New in Version 1.6"].exists)
 
         let checkbox = app.buttons["Always show on startup"]
         XCTAssertTrue(checkbox.exists)
@@ -194,6 +194,47 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
 
         XCTAssertTrue(app.navigationBars["Mitigation 1"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Beyond target"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testAboutShowsScopePickerAndDynamicVersion() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-osScopeFilter", "both"]
+        app.launch()
+
+        let aboutButton = app.buttons["About & Privacy"]
+        for _ in 0..<4 where !aboutButton.exists { app.swipeUp() }
+        XCTAssertTrue(aboutButton.waitForExistence(timeout: 5))
+        aboutButton.tap()
+
+        for _ in 0..<5 where !app.buttons["Both"].exists { app.swipeUp() }
+        XCTAssertTrue(app.buttons["Both"].isSelected)
+        let version = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "Version [0-9]+\\.[0-9]+ \\([0-9]+\\)")).firstMatch
+        for _ in 0..<5 where !version.exists { app.swipeUp() }
+        XCTAssertTrue(version.exists)
+    }
+
+    @MainActor
+    func testWorkstationScopePersistsAndReducesBackupStepCount() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "1", "-osScopeFilter", "both"]
+        app.launch()
+
+        let aboutButton = app.buttons["About & Privacy"]
+        for _ in 0..<4 where !aboutButton.exists { app.swipeUp() }
+        aboutButton.tap()
+        for _ in 0..<5 where !app.buttons["Workstation"].exists { app.swipeUp() }
+        app.buttons["Workstation"].tap()
+        XCTAssertTrue(app.buttons["Workstation"].isSelected)
+        app.buttons["Done"].tap()
+
+        app.terminate()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-targetMaturityLevel", "1"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Regular Backups"].waitForExistence(timeout: 5))
+        app.staticTexts["Regular Backups"].tap()
+        XCTAssertTrue(app.navigationBars["Mitigation 8"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["0 of 2 steps complete"].exists)
     }
 
     @MainActor

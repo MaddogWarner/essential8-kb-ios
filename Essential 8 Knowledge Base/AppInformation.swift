@@ -8,6 +8,17 @@ import Foundation
 enum AppInformation {
     static let aboutTitle = "About Essential 8"
 
+    static var marketingVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+    }
+
+    /// Version string sourced from the bundle so it tracks MARKETING_VERSION /
+    /// CURRENT_PROJECT_VERSION automatically on every release bump.
+    static var versionDisplay: String {
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+        return "Version \(marketingVersion) (\(build))"
+    }
+
     static let aboutDescription = "Essential 8 Knowledge Base is designed to give administrators just the technical details they need for each Essential Eight control as a quick reference."
 
     static let contentScope = "The guidance is scoped to practical Windows administration details and should be checked against the current ASD Essential Eight Maturity Model before implementation."

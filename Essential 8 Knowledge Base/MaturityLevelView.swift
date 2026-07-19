@@ -13,6 +13,15 @@ struct MaturityLevelView: View {
 
     @EnvironmentObject private var progressStore: ProgressStore
     @AppStorage("microsoft365LicenseMode") private var selectedLicenseRawValue = Microsoft365LicenseMode.none.rawValue
+    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
+
+    private var scopeFilter: OSScope {
+        OSScope(rawValue: osScopeRawValue) ?? .both
+    }
+
+    private var scopedSteps: [ImplementationStep] {
+        content.steps.filter { $0.matches(scope: scopeFilter) }
+    }
 
     private var selectedLicenseMode: Microsoft365LicenseMode {
         Microsoft365LicenseMode(rawValue: selectedLicenseRawValue) ?? .none
@@ -27,19 +36,19 @@ struct MaturityLevelView: View {
     @State private var naReasonText = ""
 
     private var completedCount: Int {
-        progressStore.completedCount(for: content.steps)
+        progressStore.completedCount(for: scopedSteps)
     }
 
     private var notApplicableCount: Int {
-        progressStore.notApplicableCount(for: content.steps)
+        progressStore.notApplicableCount(for: scopedSteps)
     }
 
     private var headerProgressText: String {
         let naCount = notApplicableCount
         if naCount > 0 {
-            return "\(completedCount) of \(content.steps.count) steps complete (\(naCount) not applicable)"
+            return "\(completedCount) of \(scopedSteps.count) steps complete (\(naCount) not applicable)"
         } else {
-            return "\(completedCount) of \(content.steps.count) steps complete"
+            return "\(completedCount) of \(scopedSteps.count) steps complete"
         }
     }
 
@@ -58,7 +67,15 @@ struct MaturityLevelView: View {
                 }
             }
 
-            ForEach(Array(content.steps.enumerated()), id: \.element.id) { index, step in
+            if scopedSteps.isEmpty {
+                Section {
+                    Text("No steps in this level apply to the selected OS scope. Change the scope in About.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            ForEach(Array(scopedSteps.enumerated()), id: \.element.id) { index, step in
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .top, spacing: 10) {
@@ -85,8 +102,18 @@ struct MaturityLevelView: View {
                             }
                             .buttonStyle(.plain)
 
-                            Text(step.title)
-                                .font(.headline)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(step.title)
+                                    .font(.headline)
+                                if step.osScope != .both {
+                                    Text(step.osScope == .workstation ? "Workstation" : "Server")
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.secondary.opacity(0.12), in: Capsule())
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                         
                         if progressStore.isNotApplicable(step.id) {
@@ -125,6 +152,8 @@ struct MaturityLevelView: View {
                         }
                     }
                     .padding(.vertical, 4)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(stepAccessibilityLabel(step))
                 } header: {
                     Text("Step \(index + 1)")
                 }
@@ -191,6 +220,11 @@ struct MaturityLevelView: View {
         } message: {
             Text("Provide a reason why this step is not applicable in your environment.")
         }
+    }
+
+    private func stepAccessibilityLabel(_ step: ImplementationStep) -> String {
+        let scope = step.osScope == .both ? "Workstation and Server" : (step.osScope == .workstation ? "Workstation" : "Server")
+        return "\(step.title), OS scope: \(scope)"
     }
 
     @ViewBuilder

@@ -127,6 +127,7 @@ struct Essential_8_Knowledge_BaseTests {
         UserDefaults.standard.set(MaturityLevel.ml1.rawValue, forKey: "targetMaturityLevel")
         UserDefaults.standard.set(false, forKey: "showSplashOnStartup")
         UserDefaults.standard.set(true, forKey: "referenceOnlyMode")
+        UserDefaults.standard.set(OSScope.server.rawValue, forKey: "osScopeFilter")
         
         #expect(store.status(for: "reset-test-1").state == .implemented)
         #expect(store.status(for: "reset-test-2").state == .notApplicable)
@@ -134,6 +135,7 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(UserDefaults.standard.integer(forKey: "targetMaturityLevel") == MaturityLevel.ml1.rawValue)
         #expect(UserDefaults.standard.bool(forKey: "showSplashOnStartup") == false)
         #expect(UserDefaults.standard.bool(forKey: "referenceOnlyMode") == true)
+        #expect(UserDefaults.standard.string(forKey: "osScopeFilter") == OSScope.server.rawValue)
         
         store.resetAll()
         
@@ -145,6 +147,7 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(UserDefaults.standard.object(forKey: "targetMaturityLevel") == nil)
         #expect(UserDefaults.standard.object(forKey: "showSplashOnStartup") == nil)
         #expect(UserDefaults.standard.object(forKey: "referenceOnlyMode") == nil)
+        #expect(UserDefaults.standard.object(forKey: "osScopeFilter") == nil)
     }
 
     @Test func maturityLevelCumulativeLevelsAreOrdered() throws {
@@ -183,8 +186,8 @@ struct Essential_8_Knowledge_BaseTests {
             store.setStatus(.implemented, reason: nil, for: step.id)
         }
 
-        #expect(store.isControlComplete(control, upTo: .ml1))
-        #expect(!store.isControlComplete(control, upTo: .ml3))
+        #expect(store.isControlComplete(control, upTo: .ml1, scope: .both))
+        #expect(!store.isControlComplete(control, upTo: .ml3, scope: .both))
 
         store.resetAll()
     }
@@ -217,5 +220,120 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(taggedStep.matchesSearchQuery("1490"))
         #expect(taggedStep.matchesSearchQuery("ism-1490"))
         #expect(taggedStep.matchingDetails(for: "1490") == ["ISM-1490"])
+    }
+
+    @Test func osScopeMatchingTruthTable() {
+        let workstation = ImplementationStep(id: "w", title: "W", description: "", osScope: .workstation)
+        let server = ImplementationStep(id: "s", title: "S", description: "", osScope: .server)
+        let both = ImplementationStep(id: "b", title: "B", description: "", osScope: .both)
+
+        #expect(workstation.matches(scope: .workstation))
+        #expect(!workstation.matches(scope: .server))
+        #expect(workstation.matches(scope: .both))
+        #expect(!server.matches(scope: .workstation))
+        #expect(server.matches(scope: .server))
+        #expect(server.matches(scope: .both))
+        #expect(both.matches(scope: .workstation))
+        #expect(both.matches(scope: .server))
+        #expect(both.matches(scope: .both))
+    }
+
+    @Test func scopeFilteredContentIsCumulativeAndTagged() {
+        let backups = EssentialControlsData.regularBackups
+        #expect(backups.steps(upTo: .ml3, scope: .workstation).count < backups.steps(upTo: .ml3).count)
+
+        for control in EssentialControlsData.all {
+            #expect(control.steps(upTo: .ml3, scope: .both) == control.steps(upTo: .ml3))
+        }
+
+        let allSteps = EssentialControlsData.all.flatMap { $0.steps(upTo: .ml3) }
+        #expect(allSteps.contains { $0.osScope == .workstation })
+        #expect(allSteps.contains { $0.osScope == .server })
+    }
+
+    @Test @MainActor func scopeFilteredComplianceUsesOnlyMatchingSteps() {
+        let (store, defaults) = makeIsolatedStore()
+        defer { clear(defaults) }
+        let steps = [
+            ImplementationStep(id: "scope-w", title: "W", description: "", osScope: .workstation),
+            ImplementationStep(id: "scope-b", title: "B", description: "", osScope: .both),
+            ImplementationStep(id: "scope-s", title: "S", description: "", osScope: .server)
+        ]
+        store.setStatus(.implemented, reason: nil, for: "scope-w")
+        store.setStatus(.implemented, reason: nil, for: "scope-b")
+
+        #expect(store.compliancePercentage(for: steps.filter { $0.matches(scope: .workstation) }) == 100)
+        #expect(store.compliancePercentage(for: steps) < 100)
+    }
+
+    @Test @MainActor func backupRoundTripRestoresProgressAndSettings() throws {
+        let (source, sourceDefaults) = makeIsolatedStore()
+        let (destination, destinationDefaults) = makeIsolatedStore()
+        defer {
+            clear(sourceDefaults)
+            clear(destinationDefaults)
+        }
+
+        source.setStatus(.implemented, reason: nil, for: "roundtrip-implemented")
+        source.setStatus(.notApplicable, reason: "Approved exception", for: "roundtrip-na")
+        sourceDefaults.set(Microsoft365LicenseMode.e5.rawValue, forKey: PersistedSettingsKey.microsoft365LicenseMode.rawValue)
+        sourceDefaults.set(MaturityLevel.ml2.rawValue, forKey: PersistedSettingsKey.targetMaturityLevel.rawValue)
+        sourceDefaults.set(false, forKey: PersistedSettingsKey.showSplashOnStartup.rawValue)
+        sourceDefaults.set(true, forKey: PersistedSettingsKey.referenceOnlyMode.rawValue)
+        sourceDefaults.set(OSScope.server.rawValue, forKey: PersistedSettingsKey.osScopeFilter.rawValue)
+
+        let decoded = try BackupFile.decode(BackupFile.encode(try source.exportBackup()))
+        destination.importBackup(decoded)
+
+        #expect(destination.statuses == source.statuses)
+        #expect(destinationDefaults.string(forKey: PersistedSettingsKey.microsoft365LicenseMode.rawValue) == Microsoft365LicenseMode.e5.rawValue)
+        #expect(destinationDefaults.integer(forKey: PersistedSettingsKey.targetMaturityLevel.rawValue) == MaturityLevel.ml2.rawValue)
+        #expect(destinationDefaults.bool(forKey: PersistedSettingsKey.showSplashOnStartup.rawValue) == false)
+        #expect(destinationDefaults.bool(forKey: PersistedSettingsKey.referenceOnlyMode.rawValue) == true)
+        #expect(destinationDefaults.string(forKey: PersistedSettingsKey.osScopeFilter.rawValue) == OSScope.server.rawValue)
+    }
+
+    @Test @MainActor func backupValidationRejectsInvalidFilesAndAbsentSettingsResetDefaults() throws {
+        let newer = BackupFile(
+            schemaVersion: 2,
+            appVersion: "2.0",
+            exportedAt: Date(),
+            stepProgress: [:],
+            settings: BackupSettings()
+        )
+        #expect(throws: BackupError.self) { try BackupFile.decode(BackupFile.encode(newer)) }
+        #expect(throws: BackupError.self) { try BackupFile.decode(Data("not json".utf8)) }
+
+        let (store, defaults) = makeIsolatedStore()
+        defer { clear(defaults) }
+        for key in PersistedSettingsKey.allCases {
+            defaults.set("stale", forKey: key.rawValue)
+        }
+        store.importBackup(BackupFile(
+            schemaVersion: 1,
+            appVersion: "1.6",
+            exportedAt: Date(),
+            stepProgress: [:],
+            settings: BackupSettings()
+        ))
+        #expect(PersistedSettingsKey.allCases.allSatisfy { defaults.object(forKey: $0.rawValue) == nil })
+    }
+
+    @Test func backupCoversAllPersistedKeys() {
+        let registered = PersistedSettingsKey.allCases.map(\.rawValue).sorted()
+        let backedUp = BackupSettings.CodingKeys.allCases.map(\.rawValue).sorted()
+        #expect(registered == backedUp)
+    }
+
+    @MainActor
+    private func makeIsolatedStore() -> (ProgressStore, UserDefaults) {
+        let suiteName = "Essential8Tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        return (ProgressStore(defaults: defaults), defaults)
+    }
+
+    private func clear(_ defaults: UserDefaults) {
+        defaults.dictionaryRepresentation().keys.forEach { defaults.removeObject(forKey: $0) }
     }
 }

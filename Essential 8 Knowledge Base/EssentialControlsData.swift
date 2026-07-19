@@ -9,6 +9,7 @@
 //  Windows LAPS, Windows Hello for Business, Windows Server Backup, etc.
 //  ISM mapping source: ASD Essential Eight maturity model and ISM mapping
 //  (October 2024).
+//  Steps use conservative OS scope tags: uncertain or mixed guidance stays `both`.
 //
 
 import Foundation
@@ -19,6 +20,7 @@ private func step(
     _ index: Int,
     title: String,
     description: String,
+    osScope: OSScope = .both,
     ismControls: [String] = [],
     technicalDetails: [String] = []
 ) -> ImplementationStep {
@@ -26,6 +28,7 @@ private func step(
         id: "\(controlID)-\(level.rawValue)-\(index)",
         title: title,
         description: description,
+        osScope: osScope,
         ismControls: ismControls,
         technicalDetails: technicalDetails
     )
@@ -179,6 +182,7 @@ enum EssentialControlsData {
                 step(2, .ml1, 0,
                     title: "Enable Microsoft Update for Office",
                     description: "Lets Office (M365 Apps / Office 2021+) receive updates automatically through the Microsoft Update channel.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1691"],
                     technicalDetails: [
                         "GPO: Computer Configuration → Administrative Templates → Microsoft Office (Machine) → Updates → Enable Automatic Updates = Enabled",
@@ -188,6 +192,7 @@ enum EssentialControlsData {
                 step(2, .ml1, 1,
                     title: "Enable Microsoft Edge auto-update",
                     description: "Edge updates ship through its own updater service. Keep the override allowing updates in place.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1691"],
                     technicalDetails: [
                         "GPO: Computer Configuration → Administrative Templates → Microsoft Edge Update → Applications → Microsoft Edge → Update policy override = Always allow updates",
@@ -222,6 +227,7 @@ enum EssentialControlsData {
                 step(2, .ml2, 0,
                     title: "Tighten Office and Edge update cadence",
                     description: "Move M365 Apps to Current Channel for faster security update delivery, and shorten deferral windows.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1691"],
                     technicalDetails: [
                         "GPO: Microsoft Office (Machine) → Updates → Update Channel = Current Channel",
@@ -271,6 +277,7 @@ enum EssentialControlsData {
                 step(3, .ml1, 0,
                     title: "Block macros from the internet (Mark-of-the-Web)",
                     description: "Office blocks macros in files that carry the internet zone identifier. Enable the policy for each Office app.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1488"],
                     technicalDetails: [
                         "GPO: User Configuration → Administrative Templates → Microsoft <App> <Version> → <App> Options → Security → Trust Center → Block macros from running in Office files from the Internet = Enabled",
@@ -281,6 +288,7 @@ enum EssentialControlsData {
                 step(3, .ml1, 1,
                     title: "Disable VBA macros without notification",
                     description: "For users without a business requirement, the VBA Macro Notification Setting should be 'Disabled without notification' so no UI bypass is shown.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1671"],
                     technicalDetails: [
                         "GPO: User Configuration → Administrative Templates → Microsoft <App> <Version> → <App> Options → Security → Trust Center → VBA Macro Notification Settings = Disabled without notification",
@@ -290,6 +298,7 @@ enum EssentialControlsData {
                 step(3, .ml1, 2,
                     title: "Lock down the Trust Center",
                     description: "Stop users adding trusted locations / trusted publishers themselves.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1489"],
                     technicalDetails: [
                         "GPO: <App> Options → Security → Trust Center → Disable all trusted locations = Enabled (or restrict to administrator-defined locations only)",
@@ -305,6 +314,7 @@ enum EssentialControlsData {
                 step(3, .ml2, 0,
                     title: "Allow only digitally signed macros",
                     description: "Set the macro notification setting so only macros signed by a trusted publisher run silently; all others are blocked.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1674", "ISM-1675"],
                     technicalDetails: [
                         "GPO: <App> Options → Security → Trust Center → VBA Macro Notification Settings = Disable all except digitally signed macros",
@@ -314,6 +324,7 @@ enum EssentialControlsData {
                 step(3, .ml2, 1,
                     title: "Enable AMSI scanning of macros",
                     description: "Office passes macro contents to AMSI so Microsoft Defender (or another AMSI provider) can inspect them before execution.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1672"],
                     technicalDetails: [
                         "GPO: User Configuration → Administrative Templates → Microsoft <App> → Security Settings → Macro Runtime Scan Scope = Enable for all documents",
@@ -323,6 +334,7 @@ enum EssentialControlsData {
                 step(3, .ml2, 2,
                     title: "Enable VBA macro logging",
                     description: "Office writes macro execution events to the Windows Application event log, source 'Microsoft Office <ver>'.",
+                    osScope: .workstation,
                     technicalDetails: [
                         "Registry: HKCU\\Software\\Policies\\Microsoft\\Office\\16.0\\Common\\Security → EnableLogging = 1 (DWORD)",
                         "Event log: Windows Logs → Application, Source = Microsoft Office <ver>"
@@ -337,6 +349,7 @@ enum EssentialControlsData {
                 step(3, .ml3, 0,
                     title: "Require V3 (XML-DSig) signatures",
                     description: "V3 signatures cover VBA projects more completely than legacy signatures. After re-signing approved VBA projects, enable the Office policy that only trusts V3-signed macros.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1891"],
                     technicalDetails: [
                         "GPO: User Configuration → Policies → Administrative Templates → Microsoft Office 2016 → Security Settings → Trust Center → Only trust VBA macros that use V3 signatures = Enabled",
@@ -347,6 +360,7 @@ enum EssentialControlsData {
                 step(3, .ml3, 1,
                     title: "Restrict write access to Trusted Locations",
                     description: "Trusted Locations should live on a network share where NTFS ACLs restrict write to a small approval group; users have read-only access.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1487"],
                     technicalDetails: [
                         "icacls \\\\fileserver\\Macros /grant 'DOMAIN\\MacroApprovers:(M)' /grant 'DOMAIN\\Domain Users:(RX)' /inheritance:r"
@@ -371,6 +385,7 @@ enum EssentialControlsData {
                 step(4, .ml1, 0,
                     title: "Disable Internet Explorer 11",
                     description: "IE 11 is unsupported and should be blocked from launching as a standalone browser.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1654"],
                     technicalDetails: [
                         "GPO: Computer Configuration → Administrative Templates → Windows Components → Internet Explorer → Disable Internet Explorer 11 as a standalone browser = Enabled, never notify",
@@ -381,6 +396,7 @@ enum EssentialControlsData {
                 step(4, .ml1, 1,
                     title: "Block Java in Microsoft Edge",
                     description: "Edge does not process Java applets natively. Ensure no third-party Java plugin is installed and that NPAPI/legacy plugin support remains disabled.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1486"],
                     technicalDetails: [
                         "PowerShell: Get-Package -Name '*Java*' | Uninstall-Package",
@@ -390,6 +406,7 @@ enum EssentialControlsData {
                 step(4, .ml1, 2,
                     title: "Block web advertisements",
                     description: "Use Edge's built-in tracking prevention at Strict, which also blocks many tracking-based ad networks.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1485", "ISM-1585"],
                     technicalDetails: [
                         "GPO: Computer Configuration → Administrative Templates → Microsoft Edge → Tracking prevention = Strict",
@@ -415,6 +432,7 @@ enum EssentialControlsData {
                 step(4, .ml2, 1,
                     title: "Deploy Attack Surface Reduction rules",
                     description: "ASR rules are part of Microsoft Defender Antivirus. Start in audit mode, review event log, then enforce.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1667", "ISM-1668", "ISM-1669"],
                     technicalDetails: [
                         "PowerShell: Add-MpPreference -AttackSurfaceReductionRules_Ids D4F940AB-401B-4EFC-AADC-AD5F3C50688A -AttackSurfaceReductionRules_Actions Enabled  # Block Office apps from creating child processes",
@@ -517,6 +535,7 @@ enum EssentialControlsData {
                 step(5, .ml2, 0,
                     title: "Enable Credential Guard",
                     description: "Stores derived domain credentials in a virtualisation-based secure container, defeating pass-the-hash and pass-the-ticket attacks.",
+                    osScope: .workstation,
                     ismControls: ["ISM-1686"],
                     technicalDetails: [
                         "GPO: Computer Configuration → Administrative Templates → System → Device Guard → Turn On Virtualization Based Security = Enabled, Credential Guard Configuration = Enabled with UEFI lock",
@@ -784,6 +803,7 @@ enum EssentialControlsData {
                 step(8, .ml1, 0,
                     title: "Install Windows Server Backup",
                     description: "Built-in image / file backup tool for Windows Server. Free, scriptable, supports VSS-aware applications.",
+                    osScope: .server,
                     ismControls: ["ISM-1511", "ISM-1811"],
                     technicalDetails: [
                         "PowerShell: Install-WindowsFeature Windows-Server-Backup -IncludeManagementTools",
@@ -793,6 +813,7 @@ enum EssentialControlsData {
                 step(8, .ml1, 1,
                     title: "Schedule daily backups",
                     description: "wbadmin can schedule recurring backups; schedule via Task Scheduler for more granular cadence.",
+                    osScope: .server,
                     ismControls: ["ISM-1511", "ISM-1810", "ISM-1811"],
                     technicalDetails: [
                         "Command: wbadmin enable backup -addtarget:\\\\backup\\server1 -include:C: -allCritical -schedule:23:00 -user:CORP\\backupsvc -password:<pwd> (Caution: entering passwords in plaintext via CLI logs them to history)",

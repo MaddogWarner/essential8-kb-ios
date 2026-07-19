@@ -43,6 +43,11 @@ extension ImplementationStep {
 
 struct GlobalSearchView: View {
     @State private var searchText = ""
+    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
+
+    private var scopeFilter: OSScope {
+        OSScope(rawValue: osScopeRawValue) ?? .both
+    }
     
     private var searchResults: [SearchResult] {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -55,7 +60,8 @@ struct GlobalSearchView: View {
         for control in EssentialControlsData.all {
             for level in MaturityLevel.allCases {
                 let content = control.content(for: level)
-                for (index, step) in content.steps.enumerated() {
+                let scopedSteps = content.steps.filter { $0.matches(scope: scopeFilter) }
+                for (index, step) in scopedSteps.enumerated() {
                     if step.matchesSearchQuery(query) {
                         results.append(
                             SearchResult(

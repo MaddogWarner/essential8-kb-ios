@@ -75,6 +75,7 @@ struct HomeView: View {
     @AppStorage("showSplashOnStartup") private var showSplashOnStartup = true
     @AppStorage("referenceOnlyMode") private var referenceOnlyMode = false
     @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
+    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
     @State private var isShowingSplash = false
     @State private var hasShownSplashThisSession = false
 
@@ -82,8 +83,12 @@ struct HomeView: View {
         MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
     }
 
+    private var scopeFilter: OSScope {
+        OSScope(rawValue: osScopeRawValue) ?? .both
+    }
+
     private var inScopeSteps: [ImplementationStep] {
-        controls.flatMap { $0.steps(upTo: targetLevel) }
+        controls.flatMap { $0.steps(upTo: targetLevel, scope: scopeFilter) }
     }
 
     private var overallTotalSteps: Int {
@@ -110,7 +115,7 @@ struct HomeView: View {
     private var chartData: [ChartDataPoint] {
         var points: [ChartDataPoint] = []
         for control in controls {
-            let allSteps = control.steps(upTo: targetLevel)
+            let allSteps = control.steps(upTo: targetLevel, scope: scopeFilter)
             
             let implemented = progressStore.completedCount(for: allSteps)
             let na = progressStore.notApplicableCount(for: allSteps)
@@ -216,7 +221,7 @@ struct HomeView: View {
                             }
                             .padding(.vertical, 4)
                             Spacer()
-                            if progressStore.isControlComplete(control, upTo: targetLevel) {
+                            if progressStore.isControlComplete(control, upTo: targetLevel, scope: scopeFilter) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                                     .imageScale(.medium)
