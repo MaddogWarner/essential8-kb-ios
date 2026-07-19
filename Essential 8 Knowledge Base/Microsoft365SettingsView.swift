@@ -6,16 +6,16 @@
 import SwiftUI
 
 struct Microsoft365SettingsView: View {
-    @AppStorage("microsoft365LicenseMode") private var selectedLicenseRawValue = Microsoft365LicenseMode.none.rawValue
+    @EnvironmentObject private var progressStore: ProgressStore
 
     private var selectedMode: Microsoft365LicenseMode {
-        Microsoft365LicenseMode(rawValue: selectedLicenseRawValue) ?? .none
+        progressStore.licenseMode
     }
 
     private var selectedModeBinding: Binding<Microsoft365LicenseMode> {
         Binding(
             get: { selectedMode },
-            set: { selectedLicenseRawValue = $0.rawValue }
+            set: { progressStore.licenseMode = $0 }
         )
     }
 
@@ -104,4 +104,5 @@ struct Microsoft365SettingsView: View {
     NavigationStack {
         Microsoft365SettingsView()
     }
+    .environmentObject(ProgressStore.shared)
 }

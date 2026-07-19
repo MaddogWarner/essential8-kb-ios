@@ -42,11 +42,11 @@ extension ImplementationStep {
 }
 
 struct GlobalSearchView: View {
+    @EnvironmentObject private var progressStore: ProgressStore
     @State private var searchText = ""
-    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
 
     private var scopeFilter: OSScope {
-        OSScope(rawValue: osScopeRawValue) ?? .both
+        progressStore.osScope
     }
     
     private var searchResults: [SearchResult] {

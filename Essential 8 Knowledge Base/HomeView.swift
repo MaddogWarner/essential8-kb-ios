@@ -74,17 +74,22 @@ struct HomeView: View {
     @State private var isShowingAbout = false
     @AppStorage("showSplashOnStartup") private var showSplashOnStartup = true
     @AppStorage("referenceOnlyMode") private var referenceOnlyMode = false
-    @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
-    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
     @State private var isShowingSplash = false
     @State private var hasShownSplashThisSession = false
 
     private var targetLevel: MaturityLevel {
-        MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
+        progressStore.targetMaturityLevel
     }
 
     private var scopeFilter: OSScope {
-        OSScope(rawValue: osScopeRawValue) ?? .both
+        progressStore.osScope
+    }
+
+    private var targetMaturityBinding: Binding<Int> {
+        Binding(
+            get: { progressStore.targetMaturityLevel.rawValue },
+            set: { progressStore.targetMaturityLevel = MaturityLevel(rawValue: $0) ?? .ml3 }
+        )
     }
 
     private var inScopeSteps: [ImplementationStep] {
@@ -144,7 +149,7 @@ struct HomeView: View {
                                 .font(.caption.bold())
                                 .foregroundStyle(.secondary)
 
-                            Picker("Target maturity level", selection: $targetMaturityRawValue) {
+                            Picker("Target maturity level", selection: targetMaturityBinding) {
                                 ForEach(MaturityLevel.allCases) { level in
                                     Text(level.shortName).tag(level.rawValue)
                                 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7 — 2026-07-19
+
+- Added multiple environment profiles with independent progress, audit history, target maturity, OS scope and Microsoft 365 licence settings, plus create, rename, switch and delete controls gated from About.
+- Added Deep Audit Mode with timestamped per-step status history, optional notes captured during status changes and a read-only history view.
+- Added profile-aware backup schema v2 with this-profile and all-profiles exports, non-destructive profile import, full-device restore, v1 backup compatibility, a 5 MB safety guard and a 200-entry-per-step audit cap.
+- Updated the startup splash for Version 1.7 and bumped the marketing version/build to 1.7/8.
+- Added unit and UI coverage for profile migration, lifecycle and isolation, audit recording, backup compatibility and invariant validation, and feature-toggle/profile persistence.
+
 ## 1.6 — 2026-07-13
 
 - Added conservative Workstation, Server and Both scope tags to implementation steps, with app-wide filtering and compliance recalculation over the selected scope.
