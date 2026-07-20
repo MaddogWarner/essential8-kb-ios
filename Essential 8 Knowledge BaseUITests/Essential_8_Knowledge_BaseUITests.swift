@@ -21,7 +21,7 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
 
         // 1. Verify splash elements are present
         XCTAssertTrue(app.staticTexts["Essential 8"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["What's New in Version 1.6"].exists)
+        XCTAssertTrue(app.staticTexts["What's New in Version 1.7"].exists)
 
         let checkbox = app.buttons["Always show on startup"]
         XCTAssertTrue(checkbox.exists)
@@ -212,6 +212,57 @@ final class Essential_8_Knowledge_BaseUITests: XCTestCase {
         let version = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "Version [0-9]+\\.[0-9]+ \\([0-9]+\\)")).firstMatch
         for _ in 0..<5 where !version.exists { app.swipeUp() }
         XCTAssertTrue(version.exists)
+    }
+
+    @MainActor
+    func testAssessmentFeatureTogglesRevealProfiles() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-multiProfileEnabled", "NO", "-deepAuditEnabled", "NO"]
+        app.launch()
+
+        let aboutButton = app.buttons["About & Privacy"]
+        for _ in 0..<4 where !aboutButton.exists { app.swipeUp() }
+        XCTAssertTrue(aboutButton.waitForExistence(timeout: 5))
+        aboutButton.tap()
+
+        let profilesToggle = app.switches["Multiple Profiles"]
+        for _ in 0..<4 where !profilesToggle.exists { app.swipeUp() }
+        XCTAssertTrue(profilesToggle.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["Deep Audit Mode"].exists)
+        profilesToggle.tap()
+        XCTAssertTrue(app.buttons["Profiles"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testSecondProfileAndContextPersistAcrossRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-showSplashOnStartup", "NO", "-multiProfileEnabled", "YES"]
+        app.launch()
+
+        let aboutButton = app.buttons["About & Privacy"]
+        for _ in 0..<4 where !aboutButton.exists { app.swipeUp() }
+        aboutButton.tap()
+        XCTAssertTrue(app.buttons["Profiles"].waitForExistence(timeout: 5))
+        app.buttons["Profiles"].tap()
+        app.buttons["Add Profile"].tap()
+        let field = app.textFields["Profile name"]
+        XCTAssertTrue(field.waitForExistence(timeout: 2))
+        field.typeText("Client A")
+        app.alerts["Create Profile"].buttons["Create"].tap()
+        app.navigationBars["Profiles"].buttons.element(boundBy: 0).tap()
+        for _ in 0..<5 where !app.buttons["Server"].exists { app.swipeUp() }
+        app.buttons["Server"].tap()
+        app.buttons["Done"].tap()
+
+        app.terminate()
+        app.launchArguments = ["-showSplashOnStartup", "NO"]
+        app.launch()
+        let reopenedAbout = app.buttons["About & Privacy"]
+        for _ in 0..<4 where !reopenedAbout.exists { app.swipeUp() }
+        reopenedAbout.tap()
+        XCTAssertTrue(app.staticTexts["Client A"].waitForExistence(timeout: 5))
+        for _ in 0..<5 where !app.buttons["Server"].exists { app.swipeUp() }
+        XCTAssertTrue(app.buttons["Server"].isSelected)
     }
 
     @MainActor

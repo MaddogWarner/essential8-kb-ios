@@ -12,11 +12,10 @@ struct MaturityLevelView: View {
     let content: MaturityLevelContent
 
     @EnvironmentObject private var progressStore: ProgressStore
-    @AppStorage("microsoft365LicenseMode") private var selectedLicenseRawValue = Microsoft365LicenseMode.none.rawValue
-    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
+    @AppStorage("deepAuditEnabled") private var deepAuditEnabled = false
 
     private var scopeFilter: OSScope {
-        OSScope(rawValue: osScopeRawValue) ?? .both
+        progressStore.osScope
     }
 
     private var scopedSteps: [ImplementationStep] {
@@ -24,7 +23,7 @@ struct MaturityLevelView: View {
     }
 
     private var selectedLicenseMode: Microsoft365LicenseMode {
-        Microsoft365LicenseMode(rawValue: selectedLicenseRawValue) ?? .none
+        progressStore.licenseMode
     }
 
     private var microsoft365Protections: [Microsoft365AdditionalProtection] {
@@ -34,6 +33,10 @@ struct MaturityLevelView: View {
     @State private var activeStepIDForNA: String? = nil
     @State private var showingNAReasonAlert = false
     @State private var naReasonText = ""
+    @State private var pendingAuditStepID: String?
+    @State private var pendingAuditState: StepState?
+    @State private var auditNoteText = ""
+    @State private var showingAuditNoteAlert = false
 
     private var completedCount: Int {
         progressStore.completedCount(for: scopedSteps)
@@ -81,7 +84,7 @@ struct MaturityLevelView: View {
                         HStack(alignment: .top, spacing: 10) {
                             Menu {
                                 Button {
-                                    progressStore.setStatus(.implemented, reason: nil, for: step.id)
+                                    requestStatusChange(.implemented, for: step.id)
                                 } label: {
                                     Label("Implemented", systemImage: "checkmark.circle.fill")
                                 }
@@ -93,7 +96,7 @@ struct MaturityLevelView: View {
                                     Label("Not Applicable", systemImage: "slash.circle.fill")
                                 }
                                 Button {
-                                    progressStore.setStatus(.notImplemented, reason: nil, for: step.id)
+                                    requestStatusChange(.notImplemented, for: step.id)
                                 } label: {
                                     Label("Not Implemented", systemImage: "circle")
                                 }
@@ -129,6 +132,17 @@ struct MaturityLevelView: View {
                             .padding(.horizontal, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
+                        }
+
+                        let entries = progressStore.auditEntries(for: step.id)
+                        if deepAuditEnabled && !entries.isEmpty {
+                            NavigationLink {
+                                StepAuditHistoryView(stepTitle: step.title, entries: entries)
+                            } label: {
+                                Label("History (\(entries.count))", systemImage: "clock.arrow.circlepath")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
 
                         ISMControlsCapsules(controls: step.ismControls)
@@ -213,13 +227,43 @@ struct MaturityLevelView: View {
             TextField("Enter reason (optional)", text: $naReasonText)
             Button("Save") {
                 if let stepID = activeStepIDForNA {
-                    progressStore.setStatus(.notApplicable, reason: naReasonText.trimmingCharacters(in: .whitespacesAndNewlines), for: stepID)
+                    let note = naReasonText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    progressStore.setStatus(.notApplicable, reason: note, note: note, for: stepID)
                 }
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Provide a reason why this step is not applicable in your environment.")
         }
+        .alert("Add Audit Note", isPresented: $showingAuditNoteAlert) {
+            TextField("Add a note (optional)", text: $auditNoteText)
+            Button("Save") {
+                if let stepID = pendingAuditStepID, let state = pendingAuditState {
+                    progressStore.setStatus(state, reason: nil, note: auditNoteText, for: stepID)
+                }
+                clearPendingAuditChange()
+            }
+            Button("Cancel", role: .cancel) { clearPendingAuditChange() }
+        } message: {
+            Text("Optionally record why this status changed.")
+        }
+    }
+
+    private func requestStatusChange(_ state: StepState, for stepID: String) {
+        guard deepAuditEnabled else {
+            progressStore.setStatus(state, reason: nil, for: stepID)
+            return
+        }
+        pendingAuditStepID = stepID
+        pendingAuditState = state
+        auditNoteText = ""
+        showingAuditNoteAlert = true
+    }
+
+    private func clearPendingAuditChange() {
+        pendingAuditStepID = nil
+        pendingAuditState = nil
+        auditNoteText = ""
     }
 
     private func stepAccessibilityLabel(_ step: ImplementationStep) -> String {

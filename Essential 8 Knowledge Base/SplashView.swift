@@ -46,31 +46,24 @@ struct SplashView: View {
 
                     // What's New Section Title
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("What's New in Version 1.6")
+                        Text("What's New in Version 1.7")
                             .font(.headline)
                             .padding(.horizontal, 8)
 
                         // Feature list
                         VStack(alignment: .leading, spacing: 24) {
                             featureRow(
-                                icon: "desktopcomputer",
+                                icon: "person.2",
                                 color: .blue,
-                                title: "OS Scope Filtering",
-                                description: "Filter every step to Workstation, Server or Both — compliance recalculates for the environment you manage."
+                                title: "Multiple Profiles",
+                                description: "Track separate environments or organisations, each with its own progress, settings and audit history. Turn it on in About."
                             )
 
                             featureRow(
-                                icon: "arrow.up.arrow.down.circle",
+                                icon: "clock.arrow.circlepath",
                                 color: .green,
-                                title: "Backup & Transfer",
-                                description: "Export all progress and settings as JSON and restore it on another device — fully offline."
-                            )
-
-                            featureRow(
-                                icon: "info.circle",
-                                color: .teal,
-                                title: "App Version in About",
-                                description: "The About page now shows the installed app version and build."
+                                title: "Deep Audit Mode",
+                                description: "Record a timestamped history of every status change, with an optional note — the evidence auditors ask for. Turn it on in About."
                             )
                         }
                     }

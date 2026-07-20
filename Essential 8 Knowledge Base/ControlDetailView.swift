@@ -9,15 +9,12 @@ struct ControlDetailView: View {
     let control: EssentialControl
 
     @EnvironmentObject private var progressStore: ProgressStore
-    @AppStorage("targetMaturityLevel") private var targetMaturityRawValue = MaturityLevel.ml3.rawValue
-    @AppStorage("osScopeFilter") private var osScopeRawValue = OSScope.both.rawValue
-
     private var targetLevel: MaturityLevel {
-        MaturityLevel(rawValue: targetMaturityRawValue) ?? .ml3
+        progressStore.targetMaturityLevel
     }
 
     private var scopeFilter: OSScope {
-        OSScope(rawValue: osScopeRawValue) ?? .both
+        progressStore.osScope
     }
 
     private var allSteps: [ImplementationStep] {

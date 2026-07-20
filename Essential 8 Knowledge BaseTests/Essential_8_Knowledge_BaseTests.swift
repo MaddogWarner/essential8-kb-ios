@@ -266,7 +266,74 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(store.compliancePercentage(for: steps) < 100)
     }
 
-    @Test @MainActor func backupRoundTripRestoresProgressAndSettings() throws {
+    @Test @MainActor func legacyStateMigratesIntoDefaultProfile() throws {
+        let suiteName = "Essential8Tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(try JSONEncoder().encode(["legacy": StepStatus(state: .implemented, reason: nil)]), forKey: "e8kb.stepProgressDict")
+        defaults.set(MaturityLevel.ml1.rawValue, forKey: "targetMaturityLevel")
+        defaults.set(OSScope.server.rawValue, forKey: "osScopeFilter")
+        defaults.set(Microsoft365LicenseMode.e5.rawValue, forKey: "microsoft365LicenseMode")
+
+        let store = ProgressStore(defaults: defaults)
+        #expect(store.profiles.count == 1)
+        #expect(store.activeProfile.name == "Default")
+        #expect(store.isCompleted("legacy"))
+        #expect(store.targetMaturityLevel == .ml1)
+        #expect(store.osScope == .server)
+        #expect(store.licenseMode == .e5)
+    }
+
+    @Test @MainActor func profileLifecyclePreservesInvariant() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        let original = store.activeProfileID
+        let second = store.createProfile(named: " Client A ")
+        store.renameProfile(second, to: "Client B")
+        store.switchProfile(to: second)
+        #expect(store.activeProfile.name == "Client B")
+        store.deleteProfile(second)
+        #expect(store.profiles.count == 1)
+        #expect(store.activeProfileID == original)
+        store.deleteProfile(original)
+        #expect(store.profiles.count == 1)
+    }
+
+    @Test @MainActor func profileContextAndProgressAreIsolated() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        let first = store.activeProfileID
+        store.osScope = .workstation
+        store.setStatus(.implemented, reason: nil, for: "isolated")
+        let second = store.createProfile(named: "Second")
+        store.switchProfile(to: second)
+        store.osScope = .server
+        #expect(!store.isCompleted("isolated"))
+        #expect(store.osScope == .server)
+        store.switchProfile(to: first)
+        #expect(store.isCompleted("isolated"))
+        #expect(store.osScope == .workstation)
+    }
+
+    @Test @MainActor func auditRecordsTransitionsAndEnforcesCap() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        defaults.set(true, forKey: GlobalSettingsKey.deepAuditEnabled.rawValue)
+        store.setStatus(.implemented, reason: nil, note: "Change 1", for: "audit")
+        store.setStatus(.implemented, reason: nil, note: "duplicate", for: "audit")
+        store.setStatus(.notApplicable, reason: "Exception", note: "Exception", for: "audit")
+        #expect(store.auditEntries(for: "audit").count == 2)
+        #expect(store.auditEntries(for: "audit").first?.note == "Exception")
+
+        for index in 0..<(auditEntriesPerStepCap + 5) {
+            let state: StepState = index.isMultiple(of: 2) ? .implemented : .notImplemented
+            store.setStatus(state, reason: nil, note: "\(index)", for: "capped")
+        }
+        #expect(store.auditEntries(for: "capped").count == auditEntriesPerStepCap)
+        #expect(store.auditEntries(for: "capped").last?.note != "0")
+        defaults.set(false, forKey: GlobalSettingsKey.deepAuditEnabled.rawValue)
+        store.setStatus(.implemented, reason: nil, for: "no-audit")
+        #expect(store.auditEntries(for: "no-audit").isEmpty)
+    }
+
+    @Test @MainActor func allProfilesBackupRoundTripRestoresEverything() throws {
         let (source, sourceDefaults) = makeIsolatedStore()
         let (destination, destinationDefaults) = makeIsolatedStore()
         defer {
@@ -274,55 +341,108 @@ struct Essential_8_Knowledge_BaseTests {
             clear(destinationDefaults)
         }
 
-        source.setStatus(.implemented, reason: nil, for: "roundtrip-implemented")
-        source.setStatus(.notApplicable, reason: "Approved exception", for: "roundtrip-na")
-        sourceDefaults.set(Microsoft365LicenseMode.e5.rawValue, forKey: PersistedSettingsKey.microsoft365LicenseMode.rawValue)
-        sourceDefaults.set(MaturityLevel.ml2.rawValue, forKey: PersistedSettingsKey.targetMaturityLevel.rawValue)
-        sourceDefaults.set(false, forKey: PersistedSettingsKey.showSplashOnStartup.rawValue)
-        sourceDefaults.set(true, forKey: PersistedSettingsKey.referenceOnlyMode.rawValue)
-        sourceDefaults.set(OSScope.server.rawValue, forKey: PersistedSettingsKey.osScopeFilter.rawValue)
+        sourceDefaults.set(true, forKey: GlobalSettingsKey.deepAuditEnabled.rawValue)
+        sourceDefaults.set(false, forKey: GlobalSettingsKey.showSplashOnStartup.rawValue)
+        source.targetMaturityLevel = .ml2; source.osScope = .server; source.licenseMode = .e5
+        source.setStatus(.implemented, reason: nil, note: "Approved", for: "roundtrip")
+        let second = source.createProfile(named: "DR"); source.switchProfile(to: second); source.osScope = .workstation
 
-        let decoded = try BackupFile.decode(BackupFile.encode(try source.exportBackup()))
-        destination.importBackup(decoded)
+        let decoded = try BackupFile.decode(BackupFile.encode(try source.exportAllProfiles()))
+        destination.importFullDevice(decoded)
 
-        #expect(destination.statuses == source.statuses)
-        #expect(destinationDefaults.string(forKey: PersistedSettingsKey.microsoft365LicenseMode.rawValue) == Microsoft365LicenseMode.e5.rawValue)
-        #expect(destinationDefaults.integer(forKey: PersistedSettingsKey.targetMaturityLevel.rawValue) == MaturityLevel.ml2.rawValue)
-        #expect(destinationDefaults.bool(forKey: PersistedSettingsKey.showSplashOnStartup.rawValue) == false)
-        #expect(destinationDefaults.bool(forKey: PersistedSettingsKey.referenceOnlyMode.rawValue) == true)
-        #expect(destinationDefaults.string(forKey: PersistedSettingsKey.osScopeFilter.rawValue) == OSScope.server.rawValue)
+        #expect(destination.profiles.map(\.id) == source.profiles.map(\.id))
+        #expect(destination.profiles.map(\.name) == source.profiles.map(\.name))
+        #expect(destination.profiles.map(\.stepProgress) == source.profiles.map(\.stepProgress))
+        #expect(destination.profiles.map(\.auditTrail).map { $0.mapValues { $0.map(\.note) } }
+                == source.profiles.map(\.auditTrail).map { $0.mapValues { $0.map(\.note) } })
+        #expect(destination.profiles.map(\.targetMaturityLevelRaw) == source.profiles.map(\.targetMaturityLevelRaw))
+        #expect(destination.profiles.map(\.osScopeFilterRaw) == source.profiles.map(\.osScopeFilterRaw))
+        #expect(destination.profiles.map(\.microsoft365LicenseModeRaw) == source.profiles.map(\.microsoft365LicenseModeRaw))
+        #expect(destinationDefaults.bool(forKey: GlobalSettingsKey.deepAuditEnabled.rawValue))
+        #expect(destinationDefaults.object(forKey: GlobalSettingsKey.showSplashOnStartup.rawValue) as? Bool == false)
+        #expect(destinationDefaults.bool(forKey: GlobalSettingsKey.multiProfileEnabled.rawValue))
     }
 
-    @Test @MainActor func backupValidationRejectsInvalidFilesAndAbsentSettingsResetDefaults() throws {
-        let newer = BackupFile(
-            schemaVersion: 2,
-            appVersion: "2.0",
+    @Test @MainActor func fullDeviceImportRemovesAbsentGlobalSettings() {
+        let (store, defaults) = makeIsolatedStore()
+        defer { clear(defaults) }
+        GlobalSettingsKey.allCases.forEach { defaults.set(true, forKey: $0.rawValue) }
+
+        let backup = BackupFile(
+            schemaVersion: BackupFile.currentSchemaVersion,
+            appVersion: "1.7",
             exportedAt: Date(),
-            stepProgress: [:],
-            settings: BackupSettings()
+            profiles: [Profile.newDefault()],
+            globalSettings: GlobalSettingsBackup(
+                showSplashOnStartup: nil,
+                referenceOnlyMode: nil,
+                deepAuditEnabled: nil,
+                multiProfileEnabled: nil
+            )
+        )
+        store.importFullDevice(backup)
+
+        #expect(GlobalSettingsKey.allCases.allSatisfy { defaults.object(forKey: $0.rawValue) == nil })
+    }
+
+    @Test @MainActor func singleProfileBackupImportsNonDestructively() throws {
+        let (source, sourceDefaults) = makeIsolatedStore(); defer { clear(sourceDefaults) }
+        let (destination, destinationDefaults) = makeIsolatedStore(); defer { clear(destinationDefaults) }
+        source.setStatus(.implemented, reason: nil, for: "portable")
+        let originalID = destination.activeProfileID
+        destination.importAsNewProfile(try source.exportActiveProfile())
+        #expect(destination.profiles.count == 2)
+        #expect(destination.profiles.contains { $0.id == originalID })
+        #expect(destination.isCompleted("portable"))
+        #expect(destinationDefaults.bool(forKey: GlobalSettingsKey.multiProfileEnabled.rawValue))
+    }
+
+    @Test func v1BackupRemainsImportable() throws {
+        let json = """
+        {"schemaVersion":1,"appVersion":"1.6","exportedAt":"2026-07-13T00:00:00Z","stepProgress":{"old":{"state":"Implemented"}},"settings":{"targetMaturityLevel":1,"osScopeFilter":"server","microsoft365LicenseMode":"e5"}}
+        """
+        let backup = try BackupFile.decode(Data(json.utf8))
+        #expect(backup.profiles.count == 1)
+        #expect(backup.profiles[0].name == "Imported")
+        #expect(backup.profiles[0].stepProgress["old"]?.state == .implemented)
+        #expect(backup.globalSettings == nil)
+    }
+
+    @Test func backupValidationRejectsInvalidFilesAndInvariants() throws {
+        let profile = Profile.newDefault()
+        let newer = BackupFile(
+            schemaVersion: 3, appVersion: "2.0", exportedAt: Date(), profiles: [profile], globalSettings: nil
         )
         #expect(throws: BackupError.self) { try BackupFile.decode(BackupFile.encode(newer)) }
         #expect(throws: BackupError.self) { try BackupFile.decode(Data("not json".utf8)) }
-
-        let (store, defaults) = makeIsolatedStore()
-        defer { clear(defaults) }
-        for key in PersistedSettingsKey.allCases {
-            defaults.set("stale", forKey: key.rawValue)
-        }
-        store.importBackup(BackupFile(
-            schemaVersion: 1,
-            appVersion: "1.6",
+        #expect(throws: BackupError.self) { try BackupFile.decode(Data(repeating: 0, count: BackupFile.maximumFileSize + 1)) }
+        let empty = BackupFile(
+            schemaVersion: 2, appVersion: "1.7", exportedAt: Date(), profiles: [], globalSettings: nil
+        )
+        #expect(throws: BackupError.self) { try BackupFile.decode(BackupFile.encode(empty)) }
+        let duplicate = BackupFile(
+            schemaVersion: 2,
+            appVersion: "1.7",
             exportedAt: Date(),
-            stepProgress: [:],
-            settings: BackupSettings()
-        ))
-        #expect(PersistedSettingsKey.allCases.allSatisfy { defaults.object(forKey: $0.rawValue) == nil })
+            profiles: [profile, profile],
+            globalSettings: nil
+        )
+        #expect(throws: BackupError.self) { try BackupFile.decode(BackupFile.encode(duplicate)) }
     }
 
-    @Test func backupCoversAllPersistedKeys() {
-        let registered = PersistedSettingsKey.allCases.map(\.rawValue).sorted()
-        let backedUp = BackupSettings.CodingKeys.allCases.map(\.rawValue).sorted()
+    @Test func backupCoversAllGlobalKeys() {
+        let registered = GlobalSettingsKey.allCases.map(\.rawValue).sorted()
+        let backedUp = GlobalSettingsBackup.CodingKeys.allCases.map(\.rawValue).sorted()
         #expect(registered == backedUp)
+    }
+
+    @Test func profileCodableCarriesAssessmentContext() throws {
+        var profile = Profile.newDefault(name: "Context")
+        profile.targetMaturityLevelRaw = 1; profile.osScopeFilterRaw = "server"; profile.microsoft365LicenseModeRaw = "e5"
+        profile.stepProgress["step"] = StepStatus(state: .implemented, reason: nil)
+        profile.auditTrail["step"] = [AuditEntry(id: UUID(), timestamp: Date(), previousState: .notImplemented, newState: .implemented, note: nil)]
+        let decoded = try JSONDecoder().decode(Profile.self, from: JSONEncoder().encode(profile))
+        #expect(decoded == profile)
     }
 
     @MainActor

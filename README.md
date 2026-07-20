@@ -15,6 +15,8 @@ The optional **M365 Additional Controls** settings page lets administrators sele
 - Where a Maturity Level requires capability beyond what Windows ships natively (e.g. authenticated vulnerability scanning, cloud IdP for phishing-resistant MFA at ML3, immutable backup storage), the gap is called out explicitly on that level's screen under **"Beyond Windows built-in tooling"**.
 - ISM control identifiers are sourced from ASD's *Essential Eight maturity model and ISM mapping* (October 2024) and displayed on mapped implementation steps. Global Search can find both full IDs (e.g. `ISM-1490`) and numeric fragments.
 - Implementation steps carry conservative **Workstation**, **Server** or **Both** scope tags. The About-page selector filters Home, control and maturity pages, and Global Search; compliance is recalculated only over visible in-scope steps.
+- Optional **Multiple Profiles** keep progress, audit history, target maturity, OS scope and Microsoft 365 licence mode separate for each environment or organisation.
+- Optional **Deep Audit Mode** records timestamped status transitions with an optional note and exposes read-only history for each step.
 - Microsoft 365 additions are hidden by default. If enabled, they are shown as additional or partial supports based on the selected licensing mode: **E3 + Entra ID P1**, **E3 + Entra ID P2**, or **E5**.
 - Always verify against the current ASD Maturity Model before implementing — content reflects the model as known at the time of writing.
 
@@ -37,8 +39,8 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 - **Global Search** → search bar for querying GPO paths, registry paths, commands, and ISM identifiers across all controls, with direct navigation to matched steps.
 - **M365 Additional Controls** → persisted local settings for None, E3 with P1/P2, or E5.
 - **Control detail** → overview, ML0 description, three Maturity Level buttons, target-scoped compliance percentage progress, and beyond-target badges for maturity levels above the selected target.
-- **Maturity Level detail** → optional M365 / MDE additions followed by scope-filtered implementation steps with OS scope capsules and verified ISM tags, a multi-state status selection menu (Implemented, Not Applicable with custom reason, Not Implemented) and copy-able technical details.
-- **About & Privacy** → modal sheet with app purpose, author references, privacy policy statements, OS Scope and Reference Only Mode preferences, offline Backup & Restore actions, bundle-driven version/build display, external ASD/Microsoft links, App Store rating link, and local data reset buttons.
+- **Maturity Level detail** → optional M365 / MDE additions followed by scope-filtered implementation steps with OS scope capsules and verified ISM tags, a multi-state status selection menu, optional audit-note capture and read-only change history.
+- **About & Privacy** → modal sheet with assessment-feature toggles, profile management, OS Scope and Reference Only Mode preferences, profile-aware offline Backup & Restore actions, version/build display, references and local data reset.
 
 ## Project structure
 
@@ -58,25 +60,26 @@ Essential 8 Knowledge Base/
 ├── AboutView.swift                       Purpose, privacy, backup/restore, preferences, version + reset
 ├── AppInformation.swift                  About / Privacy strings, rating URLs and bundle version
 ├── BackupFile.swift                      Versioned JSON backup schema, encoding and validation
+├── ProfilesView.swift                    Named assessment-profile management
+├── StepAuditHistoryView.swift            Read-only per-step status history
 ├── EssentialControl.swift                Data model
 ├── EssentialControlsData.swift           All control + ML content
-├── ProgressStore.swift                   Store tracking step statuses (Implemented/NA/Not Implemented) & reset logic
+├── ProgressStore.swift                   Profile context, progress, audit, migration and backup operations
 └── Assets.xcassets
 ```
 
 ## Architecture notes
 
-- Pure SwiftUI. Uses a Combine-backed `ProgressStore` to persist implementation step status (Implemented, Not Applicable, Not Implemented) via `UserDefaults` with support for legacy progress migration.
+- Pure SwiftUI. Uses a Combine-backed `ProgressStore` to persist named assessment profiles via `UserDefaults`, with migration from the v1.6 single-profile representation.
 - `NavigationStack` with value-based navigation (`NavigationLink(value:)` + `.navigationDestination(for:)`).
 - iOS 26+ deployment target. Leverages SwiftUI's Charts framework for rendering visual compliance progress.
 - No analytics, no network calls, no persisted user data outside the device. The app is entirely offline.
-- The selected M365 licensing mode is stored locally with `@AppStorage` and defaults to `None`.
-- The selected target maturity level is stored locally with `@AppStorage` and defaults to ML3 so existing compliance totals remain unchanged until the user chooses a lower target.
-- The selected OS scope is stored locally with `@AppStorage` and defaults to Both. Backup export/import remains fully offline and transfers all progress plus persisted settings.
+- M365 licence mode, target maturity and OS scope are stored per profile and default to None, ML3 and Both respectively.
+- Splash, Reference Only Mode and the assessment-feature toggles remain global device settings.
 
 ### Backup format & persistence rule
 
-The versioned backup JSON schema lives in `BackupFile.swift`. Every future persisted setting must be added to `PersistedSettingsKey`, `BackupSettings`, and both transfer functions in `ProgressStore`; `testBackupCoversAllPersistedKeys` enforces coverage. Breaking backup-format changes must increment `schemaVersion`.
+The versioned backup JSON schema lives in `BackupFile.swift`. Schema v2 carries one or more profiles, including capped audit history, and optionally global settings for full-device exports; schema-v1 backups remain importable as a new profile. New global settings must be added to `GlobalSettingsKey` and `GlobalSettingsBackup`, while new profile context belongs in `Profile`. Coverage and Codable round-trip tests guard both registries. Breaking format changes must increment `schemaVersion`.
 
 ## Privacy
 
