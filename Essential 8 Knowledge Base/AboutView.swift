@@ -107,6 +107,13 @@ struct AboutView: View {
                 }
 
                 Section {
+                    Text(AppInformation.attackDisclaimer)
+                    Text(AppInformation.attackCoverageCaveat)
+                    Text(AppInformation.attackVersionNote)
+                    Text(AppInformation.attackAttribution)
+                } header: { Text("MITRE ATT&CK®") }
+
+                Section {
                     ForEach(AppInformation.referenceLinks) { reference in
                         referenceLink(reference, icon: "link")
                     }

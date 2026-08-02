@@ -46,24 +46,24 @@ struct SplashView: View {
 
                     // What's New Section Title
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("What's New in Version 1.7")
+                        Text("What's New in Version 1.8")
                             .font(.headline)
                             .padding(.horizontal, 8)
 
                         // Feature list
                         VStack(alignment: .leading, spacing: 24) {
                             featureRow(
-                                icon: "person.2",
-                                color: .blue,
-                                title: "Multiple Profiles",
-                                description: "Track separate environments or organisations, each with its own progress, settings and audit history. Turn it on in About."
+                                icon: "shield.checkerboard",
+                                color: .purple,
+                                title: "MITRE ATT&CK® Mapping",
+                                description: "Every implementation step now shows the adversary techniques it acts against, with the ATT&CK relationship — prevent, detect, recover or support."
                             )
 
                             featureRow(
-                                icon: "clock.arrow.circlepath",
-                                color: .green,
-                                title: "Deep Audit Mode",
-                                description: "Record a timestamped history of every status change, with an optional note — the evidence auditors ask for. Turn it on in About."
+                                icon: "chart.bar.doc.horizontal",
+                                color: .blue,
+                                title: "Threat Coverage",
+                                description: "See which ATT&CK techniques your implemented steps actually cover, grouped by tactic and scoped to your target maturity level."
                             )
                         }
                     }

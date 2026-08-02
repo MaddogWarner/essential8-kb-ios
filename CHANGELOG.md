@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8 — 2026-07-26
+
+- Added curated per-step MITRE ATT&CK® Enterprise v19.1 mappings for 65 of 67 implementation steps, with Prevent, Detect, Recover and Support relationships and analyst-focused caveats.
+- Added target-maturity-, OS-scope- and profile-aware ATT&CK coverage, including tactic groupings, per-control rollups and honest Covered, Partial, Not covered, Indirect and Not applicable states.
+- Added tappable technique capsules and cross-control detail sheets showing mapped steps, relationship context, current status and scope.
+- Extended Global Search to find ATT&CK technique IDs, parent IDs, canonical names and mapping notes.
+- Added the required MITRE attribution, version note, coverage caveat, derived-mapping disclaimer and authoritative reference links.
+- Updated the startup splash for Version 1.8 and bumped the marketing version/build to 1.8/9.
+- Added data-integrity, coverage-maths and UI tests for catalogue and mapping validity, scope, profile isolation and coverage navigation.
+
 ## 1.7 — 2026-07-19
 
 - Added multiple environment profiles with independent progress, audit history, target maturity, OS scope and Microsoft 365 licence settings, plus create, rename, switch and delete controls gated from About.

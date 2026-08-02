@@ -37,6 +37,7 @@ struct MaturityLevelView: View {
     @State private var pendingAuditState: StepState?
     @State private var auditNoteText = ""
     @State private var showingAuditNoteAlert = false
+    @State private var selectedTechnique: ATTACKTechnique?
 
     private var completedCount: Int {
         progressStore.completedCount(for: scopedSteps)
@@ -146,6 +147,10 @@ struct MaturityLevelView: View {
                         }
 
                         ISMControlsCapsules(controls: step.ismControls)
+                        ATTACKTechniqueCapsules(
+                            mappings: ATTACKMappingData.mappings(for: step.id),
+                            selectedTechnique: $selectedTechnique
+                        )
 
                         Text(step.description)
                             .font(.subheadline)
@@ -219,6 +224,11 @@ struct MaturityLevelView: View {
                     Text("These licensed protections are additional or partial supports. They do not replace the core Essential Eight implementation steps above.")
                         .font(.footnote)
                 }
+            }
+        }
+        .sheet(item: $selectedTechnique) { technique in
+            NavigationStack {
+                ATTACKTechniqueDetailView(technique: technique)
             }
         }
         .navigationTitle("\(controlName) — \(level.shortName)")
@@ -316,6 +326,48 @@ struct ISMControlsCapsules: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("ISM controls: \(controls.joined(separator: ", "))")
+        }
+    }
+}
+
+struct ATTACKTechniqueCapsules: View {
+    let mappings: [ATTACKMapping]
+    @Binding var selectedTechnique: ATTACKTechnique?
+
+    private var techniques: [ATTACKTechnique] {
+        let ids = Set(mappings.map(\.techniqueID))
+        return ATTACKCatalogue.all.filter { ids.contains($0.id) }
+    }
+
+    private var columns: [GridItem] {
+        [GridItem(.adaptive(minimum: 72), spacing: 6, alignment: .leading)]
+    }
+
+    var body: some View {
+        if !techniques.isEmpty {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
+                ForEach(techniques) { technique in
+                    Button {
+                        selectedTechnique = technique
+                    } label: {
+                        // Padding sits inside the label so the whole capsule is the
+                        // tap target, not just the text glyphs.
+                        Text(technique.id)
+                            .font(.system(.caption2, design: .monospaced).bold())
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.purple.opacity(0.1), in: Capsule())
+                            .foregroundStyle(.purple)
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("attack-technique-\(technique.id)")
+                }
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(
+                "ATT&CK techniques: \(techniques.map { "\($0.id) \($0.name)" }.joined(separator: ", "))"
+            )
         }
     }
 }

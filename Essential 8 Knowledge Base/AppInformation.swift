@@ -25,7 +25,26 @@ enum AppInformation {
 
     static let aboutMeTitle = "About Me"
 
-    static let aboutMeDescription = "MadDogWarner is not affiliated with ASD or Microsoft in any way. This project is a passion project built to provide a clear, easy to understand security tool that helps technical teams uplift Essential Eight practices to the masses."
+    static let aboutMeDescription = "MadDogWarner is not affiliated with ASD, Microsoft or The MITRE Corporation in any way. This project is a passion project built to provide a clear, easy to understand security tool that helps technical teams uplift Essential Eight practices to the masses."
+
+    static let attackDisclaimerShort =
+        "Derived mapping — not an ASD or MITRE product."
+
+    static let attackDisclaimer =
+        "ASD does not publish an Essential Eight to MITRE ATT&CK mapping. These technique links are derived and curated by the author from the ASD Essential Eight to ISM mapping and MITRE ATT&CK technique descriptions, and are provided as an aid to understanding — not as an authoritative or certified mapping. Verify against your own threat model before relying on them."
+
+    /// Required by MITRE's Terms of Use. The rendered string must be character-for-character
+    /// as MITRE specifies; only the year is interpolated, and it is bound to the pinned
+    /// ATT&CK release so it cannot drift out of step with the data it describes.
+    static let attackAttribution =
+        "© \(ATTACKCatalogue.attackCopyrightYear) The MITRE Corporation. This work is reproduced and distributed with the permission of The MITRE Corporation. MITRE ATT&CK® and ATT&CK® are registered trademarks of The MITRE Corporation."
+
+    /// MITRE's own caveat. Load-bearing for a screen that shows "Covered" badges.
+    static let attackCoverageCaveat =
+        "MITRE does not claim ATT&CK enumerates every possible adversary behaviour, and using ATT&CK does not guarantee full defensive coverage. A technique shown as covered means the mapped implementation steps are complete — not that your environment is defended against it."
+
+    static let attackVersionNote =
+        "Mapped against MITRE ATT&CK® Enterprise \(ATTACKCatalogue.attackVersion), released \(ATTACKCatalogue.attackVersionReleased)."
 
     static let authorLinks: [ReferenceLink] = [
         ReferenceLink(
@@ -73,6 +92,14 @@ enum AppInformation {
         ReferenceLink(
             title: "Microsoft Entra MFA licensing",
             url: referenceURL("https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-licensing")
+        ),
+        ReferenceLink(
+            title: "MITRE ATT&CK Enterprise matrix",
+            url: referenceURL("https://attack.mitre.org/")
+        ),
+        ReferenceLink(
+            title: "MITRE ATT&CK terms of use",
+            url: referenceURL("https://attack.mitre.org/resources/legal-and-branding/terms-of-use/")
         )
     ]
 
