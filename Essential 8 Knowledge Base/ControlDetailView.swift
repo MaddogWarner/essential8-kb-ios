@@ -9,6 +9,7 @@ struct ControlDetailView: View {
     let control: EssentialControl
 
     @EnvironmentObject private var progressStore: ProgressStore
+    @AppStorage("referenceOnlyMode") private var referenceOnlyMode = false
     private var targetLevel: MaturityLevel {
         progressStore.targetMaturityLevel
     }
@@ -31,6 +32,10 @@ struct ControlDetailView: View {
 
     private var compliancePercentage: Double {
         progressStore.compliancePercentage(for: allSteps)
+    }
+
+    private var techniqueCount: Int {
+        ATTACKCoverageCalculator.techniques(forControl: control.id, store: progressStore).count
     }
 
     var body: some View {
@@ -97,6 +102,18 @@ struct ControlDetailView: View {
             } footer: {
                 Text("Measured against your target of ML\(targetLevel.rawValue). Change the target on the home dashboard.")
                     .font(.footnote)
+            }
+
+            if !referenceOnlyMode {
+                Section {
+                    NavigationLink {
+                        ATTACKCoverageView(controlFilter: control.id)
+                    } label: {
+                        Label("\(techniqueCount) ATT&CK techniques mapped", systemImage: "shield.checkerboard")
+                    }
+                } header: {
+                    Text("Threat Coverage")
+                }
             }
 
             Section {

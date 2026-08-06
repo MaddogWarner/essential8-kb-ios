@@ -14,6 +14,7 @@ The optional **M365 Additional Controls** settings page lets administrators sele
 - Only configuration achievable using **built-in Windows OS tooling** is documented (Group Policy, registry, AppLocker, Windows Defender Application Control, Microsoft Defender / ASR rules, Windows Update for Business, Windows LAPS, Windows Hello for Business, Windows Server Backup, ReFS, Credential Guard, etc.).
 - Where a Maturity Level requires capability beyond what Windows ships natively (e.g. authenticated vulnerability scanning, cloud IdP for phishing-resistant MFA at ML3, immutable backup storage), the gap is called out explicitly on that level's screen under **"Beyond Windows built-in tooling"**.
 - ISM control identifiers are sourced from ASD's *Essential Eight maturity model and ISM mapping* (October 2024) and displayed on mapped implementation steps. Global Search can find both full IDs (e.g. `ISM-1490`) and numeric fragments.
+- Curated **MITRE ATT&CK® Enterprise v19.1** mappings connect implementation steps to adversary techniques with Prevent, Detect, Recover or Support relationships. Coverage is derived from the active profile, target maturity level and OS scope; the mapping is not an ASD or MITRE product.
 - Implementation steps carry conservative **Workstation**, **Server** or **Both** scope tags. The About-page selector filters Home, control and maturity pages, and Global Search; compliance is recalculated only over visible in-scope steps.
 - Optional **Multiple Profiles** keep progress, audit history, target maturity, OS scope and Microsoft 365 licence mode separate for each environment or organisation.
 - Optional **Deep Audit Mode** records timestamped status transitions with an optional note and exposes read-only history for each step.
@@ -36,10 +37,11 @@ Each control surfaces an **ML0** description ("no controls implemented" — what
 ## Navigation
 
 - **Home** → welcome splash screen on startup (recurrence toggled via custom checkbox) + compliance dashboard (optional, hideable via Reference Only Mode, containing target maturity picker, overall compliance ring & stacked bar chart) + list of all eight mitigations + M365 Additional Controls + About & Privacy.
-- **Global Search** → search bar for querying GPO paths, registry paths, commands, and ISM identifiers across all controls, with direct navigation to matched steps.
+- **Global Search** → search bar for querying GPO paths, registry paths, commands, ISM identifiers and ATT&CK techniques across all controls, with direct navigation to matched steps.
 - **M365 Additional Controls** → persisted local settings for None, E3 with P1/P2, or E5.
-- **Control detail** → overview, ML0 description, three Maturity Level buttons, target-scoped compliance percentage progress, and beyond-target badges for maturity levels above the selected target.
-- **Maturity Level detail** → optional M365 / MDE additions followed by scope-filtered implementation steps with OS scope capsules and verified ISM tags, a multi-state status selection menu, optional audit-note capture and read-only change history.
+- **Control detail** → overview, ML0 description, target-scoped compliance and ATT&CK coverage rollups, three Maturity Level buttons, and beyond-target badges for maturity levels above the selected target.
+- **Maturity Level detail** → optional M365 / MDE additions followed by scope-filtered implementation steps with OS scope, ISM and tappable ATT&CK capsules, a multi-state status selection menu, optional audit-note capture and read-only change history.
+- **MITRE ATT&CK® Coverage** → techniques grouped by tactic with profile-aware coverage fractions, status badges, cross-control detail and explicit scope and coverage caveats.
 - **About & Privacy** → modal sheet with assessment-feature toggles, profile management, OS Scope and Reference Only Mode preferences, profile-aware offline Backup & Restore actions, version/build display, references and local data reset.
 
 ## Project structure
@@ -51,6 +53,12 @@ Essential 8 Knowledge Base/
 ├── HomeView.swift                        List of mitigations + target-scoped compliance dashboard + About sheet
 ├── SplashView.swift                      Startup screen with app overview & current-build updates
 ├── GlobalSearchView.swift                Search interface for GPOs, registry keys, commands, and ISM IDs
+├── ATTACKTechnique.swift                 ATT&CK tactic, technique, relationship and mapping models
+├── ATTACKCatalogue.swift                 Pinned Enterprise v19.1 technique catalogue
+├── ATTACKMappingData.swift               Curated per-step technique relationships
+├── ATTACKCoverage.swift                  Pure profile/scope-aware coverage calculations
+├── ATTACKCoverageView.swift              Tactic-grouped coverage screen
+├── ATTACKTechniqueDetailView.swift       Cross-control technique detail sheet
 ├── ControlDetailView.swift               Overview, ML0, target-scoped compliance & level buttons
 ├── MaturityLevelView.swift               Scope-filtered detail with OS/ISM tags, status Menu & N/A reason prompt
 ├── Microsoft365SettingsView.swift        M365 Additional Controls settings page
@@ -76,6 +84,7 @@ Essential 8 Knowledge Base/
 - No analytics, no network calls, no persisted user data outside the device. The app is entirely offline.
 - M365 licence mode, target maturity and OS scope are stored per profile and default to None, ML3 and Both respectively.
 - Splash, Reference Only Mode and the assessment-feature toggles remain global device settings.
+- ATT&CK reference data is statically compiled into the app; no network request occurs unless the user opens an external reference link.
 
 ### Backup format & persistence rule
 
@@ -97,6 +106,7 @@ The test targets include lightweight shipping checks:
 - Unit tests verify that M365 / MDE additions are hidden for `None` and expand for E3 P1, E3 P2 and E5 modes.
 - Unit tests verify that `ProgressStore` calculates compliance percentage correctly with mixed implementation states, handles target-scoped maturity calculations, handles state persistence, and resets all configurations including Reference Only Mode and Target Maturity Level.
 - Unit tests verify ISM identifier format, OS scope truth tables and content tags, scope-filtered compliance, backup validation/round trips, persisted-key coverage, and search matching behaviour for ISM IDs.
+- Unit tests enforce the closed 35-technique ATT&CK catalogue, 65 mapped steps, valid join keys, no revoked IDs, and profile-, maturity-, scope- and N/A-aware coverage maths.
 - UI tests verify the app launches to the home screen, shows the mitigation list, opens the M365 Additional Controls settings page, persists the Target Maturity Level and OS Scope pickers, shows the dynamic version row and beyond-target badges, toggles Reference Only Mode, and opens About & Privacy.
 
 ## Credits
@@ -109,3 +119,5 @@ Built collaboratively:
 ## Disclaimer
 
 The content provided is a **reference**, not authoritative guidance. Configuration changes — particularly to AppLocker / WDAC, Credential Guard, ASR rules and `SmartcardLogonRequired` — can lock users out or break business-critical software. Test in a representative non-production environment first, and validate against the current ASD Essential Eight Maturity Model and Microsoft documentation before applying changes in production.
+
+© 2026 The MITRE Corporation. This work is reproduced and distributed with the permission of The MITRE Corporation. MITRE ATT&CK® and ATT&CK® are registered trademarks of The MITRE Corporation.

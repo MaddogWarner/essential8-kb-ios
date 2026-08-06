@@ -24,6 +24,13 @@ extension ImplementationStep {
             || description.localizedCaseInsensitiveContains(trimmedQuery)
             || technicalDetails.contains { $0.localizedCaseInsensitiveContains(trimmedQuery) }
             || ismControls.contains { $0.localizedCaseInsensitiveContains(trimmedQuery) }
+            || attackMappings.contains { mapping in
+                guard let technique = ATTACKCatalogue.technique(mapping.techniqueID) else { return false }
+                return technique.id.localizedCaseInsensitiveContains(trimmedQuery)
+                    || technique.parentID?.localizedCaseInsensitiveContains(trimmedQuery) == true
+                    || technique.name.localizedCaseInsensitiveContains(trimmedQuery)
+                    || mapping.note?.localizedCaseInsensitiveContains(trimmedQuery) == true
+            }
     }
 
     func matchingDetails(for query: String) -> [String] {
@@ -36,8 +43,21 @@ extension ImplementationStep {
         let matchedISMControls = ismControls.filter {
             $0.localizedCaseInsensitiveContains(trimmedQuery)
         }
+        let matchedTechniques = attackMappings.compactMap { mapping -> String? in
+            guard let technique = ATTACKCatalogue.technique(mapping.techniqueID),
+                  technique.id.localizedCaseInsensitiveContains(trimmedQuery)
+                    || technique.parentID?.localizedCaseInsensitiveContains(trimmedQuery) == true
+                    || technique.name.localizedCaseInsensitiveContains(trimmedQuery)
+                    || mapping.note?.localizedCaseInsensitiveContains(trimmedQuery) == true
+            else { return nil }
+            return "\(technique.id) — \(technique.name) (\(mapping.relationships.map(\.rawValue).joined(separator: ", ")))"
+        }
 
-        return matchedTechnicalDetails + matchedISMControls
+        return matchedTechnicalDetails + matchedISMControls + matchedTechniques
+    }
+
+    private var attackMappings: [ATTACKMapping] {
+        ATTACKMappingData.mappings(for: id)
     }
 }
 
@@ -103,7 +123,7 @@ struct GlobalSearchView: View {
                         .padding(.top, 40)
                     Text("Search technical details")
                         .font(.headline)
-                    Text("Search registry paths, GPO settings, commands, ISM control numbers, or controls across the entire knowledge base.")
+                    Text("Search registry paths, GPO settings, commands, ISM control numbers, ATT&CK techniques, or controls across the entire knowledge base.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -118,7 +138,7 @@ struct GlobalSearchView: View {
                         .padding(.top, 40)
                     Text("No results found")
                         .font(.headline)
-                    Text("Try searching for terms like 'HKLM', 'AppLocker', 'ISM-1490', 'Registry', 'sc config', or 'block'.")
+                    Text("Try searching for terms like 'HKLM', 'AppLocker', 'ISM-1490', 'T1059', 'sc config', or 'block'.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -200,7 +220,7 @@ struct GlobalSearchView: View {
         }
         .navigationTitle("Global Search")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search GPOs, registries, commands, ISM IDs...")
+        .searchable(text: $searchText, prompt: "Search GPOs, registries, commands, ISM or ATT&CK IDs...")
     }
 }
 

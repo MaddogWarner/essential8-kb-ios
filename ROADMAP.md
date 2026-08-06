@@ -8,6 +8,7 @@ Forward-looking feature plan for the Essential 8 Knowledge Base app. Shipped his
 - **v1.5 — Technical content corrections.** Merged to `main` 05/07/2026 (PR #9). Corrections ported from the Android review (AppLocker deny paths, AppIDSvc caveat, Edge Java/ads guidance, MOTW supported-app list, `wbadmin` credential caution). See `CHANGELOG.md` 1.5. Note: the v1.5 number was taken by these corrections — the feature candidates previously listed under v1.5 moved to v1.6.
 - **v1.6 — OS scope tags + progress backup and transfer.** Implemented 13/07/2026. Adds conservative Workstation/Server filtering with recalculated compliance, full offline JSON backup/restore, persisted-state coverage enforcement and bundle-driven version display.
 - **v1.7 — Multiple profiles + deep audit mode.** Implemented 19/07/2026. Adds independent named assessment contexts, timestamped per-step status history with optional notes, and profile-aware schema-v2 backup and restore. Image/screenshot evidence attachment remains parked as a future enhancement on top of the shipped audit trail.
+- **v1.8 — MITRE ATT&CK® technique mapping + coverage.** Implemented 26/07/2026. Shipped as curated per-step mappings rather than the originally proposed per-control tags, pinned to ATT&CK Enterprise v19.1. The catalogue and mappings must be re-verified on every ATT&CK major version bump.
 
 ## Scoped — v1.6 (implemented)
 
@@ -29,26 +30,13 @@ Each step currently tells you how to *set* a control. Add a copyable "how to che
 
 **Why:** turns the app from a configuration reference into an audit tool. It is what someone marking a step "Implemented" actually needs to justify the tick.
 
-### 3. MITRE ATT&CK technique mapping
-
-Tag each control (per-control, not per-step) with the ATT&CK techniques it mitigates — e.g. Application Control → T1204 User Execution, T1059 Command and Scripting Interpreter; Office Macros → T1566 Phishing.
-
-No canonical Essential Eight → ATT&CK mapping exists (MITRE CTID's Mappings Explorer does not cover the Essential Eight or the ISM; ASD maps the Essential Eight to the ISM only). **Approach: derive the mapping indirectly through maintained authoritative sources at both ends:**
-
-1. Essential Eight requirement → ISM control, via the official ASD mapping (shipped in v1.4).
-2. ISM control → NIST SP 800-53 equivalent → ATT&CK technique, via CTID's maintained 800-53 → ATT&CK mapping (<https://center-for-threat-informed-defense.github.io/mappings-explorer/>).
-
-The chain is lossy, so every derived technique tag needs manual curation and review before it goes in the data file — same rule as ISM identifiers: an absent tag is correct, a wrong tag is a defect. Record the ATT&CK version used (e.g. v16.1) in the data file header, as tags must be re-checked when ATT&CK versions bump.
-
-**Why:** connects the compliance view to adversary behaviour — answers "what attacks does this control actually stop". No competing app has a sourced E8 → ATT&CK layer.
-
-### 4. iPad split-view layout (and a compliance widget)
+### 3. iPad split-view layout (and a compliance widget)
 
 Adopt `NavigationSplitView` so the controls list sits on the left and step detail on the right, with proper multitasking/Slide Over support. While in that layer, add a small home-screen widget showing the compliance ring (WidgetKit reading the shared store).
 
 **Why:** the app is iPhone-shaped, but the real "next to a console" device is often an iPad beside an RDP session. The widget adds daily glanceability for very little extra code.
 
-### 5. Spotlight and App Intents integration for Global Search
+### 4. Spotlight and App Intents integration for Global Search
 
 Expose the Global Search index (GPO paths, registry keys, commands, ISM IDs) to the OS via Core Spotlight and App Intents, deep-linking straight to the matched step. Include a "Search Essential 8" Siri shortcut.
 
@@ -56,5 +44,4 @@ Expose the Global Search index (GPO paths, registry keys, commands, ISM IDs) to 
 
 ## Dependencies
 
-- Candidate 3 (ATT&CK) depends on the v1.4 ISM mapping (shipped).
 - The shipped v1.7 audit trail compounds with candidate 1 (export report).

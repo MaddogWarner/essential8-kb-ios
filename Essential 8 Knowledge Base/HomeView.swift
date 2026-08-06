@@ -254,6 +254,21 @@ struct HomeView: View {
                     .font(.footnote)
             }
 
+            if !referenceOnlyMode {
+                Section {
+                    NavigationLink {
+                        ATTACKCoverageView()
+                    } label: {
+                        Label("MITRE ATT&CK® Coverage", systemImage: "shield.checkerboard")
+                    }
+                } header: {
+                    Text("Threat Coverage")
+                } footer: {
+                    Text("Which adversary techniques your implemented steps act against. \(AppInformation.attackDisclaimerShort)")
+                        .font(.footnote)
+                }
+            }
+
             Section {
                 NavigationLink {
                     Microsoft365SettingsView()

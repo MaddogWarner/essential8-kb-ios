@@ -445,6 +445,128 @@ struct Essential_8_Knowledge_BaseTests {
         #expect(decoded == profile)
     }
 
+    @Test func everyMappingReferencesAKnownTechnique() {
+        #expect(ATTACKMappingData.all.allSatisfy { ATTACKCatalogue.byID[$0.techniqueID] != nil })
+    }
+
+    @Test func everyMappingReferencesARealStep() {
+        let stepIDs = Set(EssentialControlsData.all.flatMap { $0.steps(upTo: .ml3) }.map(\.id))
+        #expect(ATTACKMappingData.all.allSatisfy { stepIDs.contains($0.stepID) })
+    }
+
+    @Test func noOrphanTechniques() {
+        let mappedIDs = Set(ATTACKMappingData.all.map(\.techniqueID))
+        #expect(ATTACKCatalogue.all.allSatisfy { mappedIDs.contains($0.id) })
+    }
+
+    @Test func attackCatalogueAndMappingsHaveNoDuplicates() {
+        #expect(Set(ATTACKCatalogue.all.map(\.id)).count == ATTACKCatalogue.all.count)
+        #expect(Set(ATTACKMappingData.all.map(\.id)).count == ATTACKMappingData.all.count)
+    }
+
+    @Test func deliberatelyUnmappedStepsRemainUnmapped() {
+        #expect(ATTACKMappingData.mappings(for: "2-1-2").isEmpty)
+        #expect(ATTACKMappingData.mappings(for: "6-1-2").isEmpty)
+    }
+
+    @Test func attackMappingCoverageIsComplete() {
+        let mappedSteps = Set(ATTACKMappingData.all.map(\.stepID))
+        #expect(mappedSteps.count == 65)
+        let allSteps = Set(EssentialControlsData.all.flatMap { $0.steps(upTo: .ml3) }.map(\.id))
+        #expect(allSteps.subtracting(mappedSteps) == ["2-1-2", "6-1-2"])
+    }
+
+    @Test func attackCatalogueExcludesRevokedTechniquesAndHasTactics() {
+        let catalogueIDs = Set(ATTACKCatalogue.all.map(\.id))
+        let mappingIDs = Set(ATTACKMappingData.all.map(\.techniqueID))
+        #expect(!catalogueIDs.contains("T1562"))
+        #expect(!catalogueIDs.contains("T1562.001"))
+        #expect(!mappingIDs.contains("T1562"))
+        #expect(!mappingIDs.contains("T1562.001"))
+        #expect(ATTACKCatalogue.all.allSatisfy { !$0.tactics.isEmpty })
+    }
+
+    @Test func attackCopyrightYearMatchesPinnedRelease() {
+        #expect(ATTACKCatalogue.attackVersionReleased.hasSuffix(ATTACKCatalogue.attackCopyrightYear))
+    }
+
+    @Test @MainActor func attackCoverageIgnoresSupportOnlyMappings() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml3
+        let coverage = ATTACKCoverageCalculator.coverage(
+            for: ATTACKCatalogue.byID["T1566.002"]!, store: store
+        )
+        #expect(coverage?.status == .indirect)
+        #expect(coverage?.fraction == nil)
+    }
+
+    @Test @MainActor func attackCoverageNotApplicableStepsLeaveDenominator() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml1
+        // T1189 has four contributing steps in scope at ML1: 2-1-1, 4-1-0, 4-1-1, 4-1-2.
+        // Marking three N/A must leave a denominator of one, not four.
+        store.setStatus(.notApplicable, reason: "Excluded", for: "2-1-1")
+        store.setStatus(.notApplicable, reason: "Excluded", for: "4-1-0")
+        store.setStatus(.implemented, reason: nil, for: "4-1-1")
+        store.setStatus(.notApplicable, reason: "Excluded", for: "4-1-2")
+        let coverage = ATTACKCoverageCalculator.coverage(for: ATTACKCatalogue.byID["T1189"]!, store: store)
+        #expect(coverage?.status == .covered)
+        #expect(coverage?.contributingTotal == 1)
+        #expect(coverage?.contributingImplemented == 1)
+    }
+
+    @Test @MainActor func allContributingStepsNotApplicableReportsNotApplicable() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml1
+        for id in ["4-1-0", "4-1-1", "4-1-2", "2-1-1"] {
+            store.setStatus(.notApplicable, reason: "Excluded", for: id)
+        }
+        let coverage = ATTACKCoverageCalculator.coverage(for: ATTACKCatalogue.byID["T1189"]!, store: store)
+        #expect(coverage?.status == .notApplicable)
+    }
+
+    @Test @MainActor func attackCoverageRespectsTargetMaturityAndProfiles() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml1
+        #expect(ATTACKCoverageCalculator.coverage(for: ATTACKCatalogue.byID["T1127"]!, store: store) == nil)
+        store.targetMaturityLevel = .ml3
+        store.setStatus(.implemented, reason: nil, for: "4-3-2")
+        let firstFraction = ATTACKCoverageCalculator.coverage(
+            for: ATTACKCatalogue.byID["T1127"]!, store: store
+        )?.fraction
+        let second = store.createProfile(named: "Second")
+        store.switchProfile(to: second)
+        store.targetMaturityLevel = .ml3
+        let secondFraction = ATTACKCoverageCalculator.coverage(
+            for: ATTACKCatalogue.byID["T1127"]!, store: store
+        )?.fraction
+        // T1127 is contributed to by 1-3-0 and 4-3-2, both ML3. Implementing one of
+        // them in the first profile must not move the second profile off zero.
+        #expect(firstFraction == 0.5)
+        #expect(secondFraction == 0.0)
+    }
+
+    @Test @MainActor func attackCoverageRespectsOSScopeFilter() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml3
+        store.osScope = .workstation
+        let workstation = ATTACKCoverageCalculator.allCoverage(store: store)
+            .reduce(into: [String: Int]()) { $0[$1.id] = $1.contributingTotal + $1.supportingTotal }
+        store.osScope = .server
+        let server = ATTACKCoverageCalculator.allCoverage(store: store)
+            .reduce(into: [String: Int]()) { $0[$1.id] = $1.contributingTotal + $1.supportingTotal }
+        #expect(workstation != server)
+    }
+
+    @Test @MainActor func partialAttackCoverageReportsCorrectFraction() {
+        let (store, defaults) = makeIsolatedStore(); defer { clear(defaults) }
+        store.targetMaturityLevel = .ml1
+        store.setStatus(.implemented, reason: nil, for: "4-1-1")
+        let coverage = ATTACKCoverageCalculator.coverage(for: ATTACKCatalogue.byID["T1189"]!, store: store)
+        #expect(coverage?.status == .partial)
+        #expect(coverage?.fraction == 0.25)
+    }
+
     @MainActor
     private func makeIsolatedStore() -> (ProgressStore, UserDefaults) {
         let suiteName = "Essential8Tests.\(UUID().uuidString)"
